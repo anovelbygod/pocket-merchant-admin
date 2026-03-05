@@ -1,0 +1,2832 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PocketApp · Admin Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+/* ══════════════════════════════════════
+   DESIGN TOKENS — PMD system
+══════════════════════════════════════ */
+:root {
+  /* Brand */
+  --primary:       #6B3FF5;
+  --primary-dark:  #4F2DB5;
+  --primary-light: #EDE8FE;
+  --primary-mid:   rgba(107,63,245,0.15);
+
+  /* Sidebar */
+  --sidebar-bg:    #0F172A;
+  --sidebar-w:     240px;
+  --sidebar-border:rgba(255,255,255,0.07);
+  --sidebar-text:  rgba(255,255,255,0.45);
+  --sidebar-hover: rgba(255,255,255,0.06);
+  --sidebar-active:rgba(107,63,245,0.22);
+
+  /* Content */
+  --bg:            #F8FAFC;
+  --card:          #FFFFFF;
+  --border:        #CBD5E1;
+  --border-light:  #E2E8F0;
+
+  /* Text */
+  --text-primary:  #0F172A;
+  --text-secondary:#475569;
+  --text-muted:    #94A3B8;
+
+  /* Semantic */
+  --green:         #12B76A;
+  --green-light:   #DCFCE7;
+  --green-text:    #065F46;
+  --red:           #EF4444;
+  --red-light:     #FEE2E2;
+  --red-text:      #991B1B;
+  --amber:         #F59E0B;
+  --amber-light:   #FEF3C7;
+  --amber-text:    #78350F;
+  --blue:          #3B82F6;
+  --blue-light:    #EFF6FF;
+  --blue-text:     #1E40AF;
+
+  --header-h:      56px;
+  --radius:        10px;
+  --radius-lg:     14px;
+}
+
+/* ══════════════════════════════════════
+   RESET & BASE
+══════════════════════════════════════ */
+*{margin:0;padding:0;box-sizing:border-box;}
+html{min-width:1100px;} /* prevent layout collapse below dashboard min-width */
+body{font-family:'Plus Jakarta Sans',sans-serif;background:var(--bg);color:var(--text-primary);display:flex;height:100vh;overflow:hidden;font-size:13.5px;}
+button,input,select{font-family:'Plus Jakarta Sans',sans-serif;}
+a{text-decoration:none;}
+
+/* ══════════════════════════════════════
+   PROTOTYPE NAV
+══════════════════════════════════════ */
+.proto-bar{
+  position:fixed;top:0;left:0;right:0;z-index:3000;
+  background:#0a0a14;border-bottom:1px solid rgba(255,255,255,0.07);
+  display:flex;align-items:center;gap:5px;padding:6px 14px;
+  overflow-x:auto;overflow-y:hidden;white-space:nowrap;
+  min-height:36px;
+}
+.proto-bar::-webkit-scrollbar{height:2px;}
+.proto-bar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:2px;}
+.proto-bar .lbl{color:#475569;font-size:10px;font-weight:700;letter-spacing:1px;text-transform:uppercase;margin-right:4px;flex-shrink:0;}
+.pnav-btn{
+  padding:4px 11px;border-radius:100px;font-size:11px;font-weight:500;border:none;cursor:pointer;
+  transition:all 0.18s;background:rgba(255,255,255,0.07);color:#94A3B8;
+  font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;white-space:nowrap;
+}
+.pnav-btn:hover{background:rgba(255,255,255,0.12);color:white;}
+.pnav-btn.active{background:var(--primary);color:white;}
+.pnav-sep{width:1px;height:14px;background:rgba(255,255,255,0.12);margin:0 3px;flex-shrink:0;}
+body{padding-top:36px;}
+
+/* ══════════════════════════════════════
+   LAYOUT
+══════════════════════════════════════ */
+.layout{display:flex;height:calc(100vh - 36px);overflow:hidden;min-width:1100px;}
+
+/* ══════════════════════════════════════
+   SIDEBAR
+══════════════════════════════════════ */
+.sidebar{
+  width:var(--sidebar-w);flex-shrink:0;
+  background:var(--sidebar-bg);
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--sidebar-border);
+  overflow-y:auto;overflow-x:hidden;
+}
+.sidebar::-webkit-scrollbar{width:4px;}
+.sidebar::-webkit-scrollbar-track{background:transparent;}
+.sidebar::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.1);border-radius:4px;}
+
+.sb-logo{
+  padding:18px 16px 14px;
+  border-bottom:1px solid var(--sidebar-border);
+  display:flex;align-items:center;gap:10px;
+}
+.sb-logo-mark{
+  width:32px;height:32px;background:var(--primary);border-radius:9px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;font-weight:800;color:white;letter-spacing:-0.5px;flex-shrink:0;
+}
+.sb-logo-text{font-size:13.5px;font-weight:700;color:white;line-height:1.2;}
+.sb-logo-text small{display:block;font-size:9.5px;font-weight:500;color:rgba(255,255,255,0.3);letter-spacing:1px;text-transform:uppercase;}
+
+.sb-nav{padding:12px 8px;flex:1;}
+.sb-section-lbl{
+  font-size:9.5px;font-weight:700;color:rgba(255,255,255,0.22);
+  letter-spacing:1px;text-transform:uppercase;
+  padding:0 8px;margin:10px 0 4px;
+}
+.sb-item{
+  display:flex;align-items:center;gap:9px;
+  padding:8px 10px;border-radius:8px;
+  color:var(--sidebar-text);font-size:13px;font-weight:500;
+  cursor:pointer;transition:all 0.15s;margin-bottom:1px;position:relative;
+}
+.sb-item:hover{background:var(--sidebar-hover);color:rgba(255,255,255,0.7);}
+.sb-item.active{background:var(--sidebar-active);color:white;font-weight:600;}
+.sb-item.active::before{
+  content:'';position:absolute;left:-8px;top:50%;transform:translateY(-50%);
+  width:3px;height:20px;background:var(--primary);border-radius:0 3px 3px 0;
+}
+.sb-ico{width:18px;text-align:center;font-size:14px;flex-shrink:0;}
+.sb-badge{
+  margin-left:auto;background:var(--red);color:white;
+  font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:100px;
+}
+.sb-badge.amber{background:var(--amber);}
+.sb-badge.blue{background:var(--blue);}
+.sb-badge.purple{background:var(--primary);}
+
+.sb-footer{
+  padding:12px 10px;border-top:1px solid var(--sidebar-border);
+  display:flex;align-items:center;gap:10px;
+}
+.sb-avatar{
+  width:32px;height:32px;background:var(--primary);border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:10.5px;font-weight:700;color:white;flex-shrink:0;
+}
+.sb-user-name{font-size:12px;font-weight:600;color:white;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.sb-user-role{font-size:10px;color:rgba(255,255,255,0.35);}
+.sb-role-badge{
+  margin-left:auto;background:var(--primary-mid);border:1px solid rgba(107,63,245,0.3);
+  color:#c4b5fd;font-size:9px;font-weight:700;padding:2px 7px;border-radius:100px;white-space:nowrap;
+}
+
+/* ══════════════════════════════════════
+   MAIN + TOPBAR
+══════════════════════════════════════ */
+.main{flex:1;display:flex;flex-direction:column;overflow:hidden;min-width:0;}
+
+.topbar{
+  height:var(--header-h);background:var(--card);
+  border-bottom:1px solid var(--border-light);
+  display:flex;align-items:center;padding:0 24px;gap:14px;flex-shrink:0;
+}
+.topbar-title{font-size:16px;font-weight:700;flex:1;}
+.topbar-search{
+  display:flex;align-items:center;gap:8px;
+  background:var(--bg);border:1px solid var(--border-light);
+  border-radius:8px;padding:7px 13px;width:240px;
+}
+.topbar-search input{border:none;background:none;outline:none;font-size:13px;color:var(--text-primary);width:100%;}
+.topbar-search input::placeholder{color:var(--text-muted);}
+.topbar-search .s-ico{font-size:13px;color:var(--text-muted);}
+.icon-btn{
+  width:34px;height:34px;border-radius:8px;border:1px solid var(--border);
+  background:var(--card);cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:15px;transition:all 0.15s;
+}
+.icon-btn:hover{background:var(--bg);}
+.tb-role{
+  font-size:10px;font-weight:700;padding:4px 9px;border-radius:100px;
+  background:var(--primary-light);color:var(--primary-dark);border:1px solid rgba(107,63,245,0.2);
+}
+
+/* ══════════════════════════════════════
+   CONTENT AREA
+══════════════════════════════════════ */
+.content{flex:1;overflow-y:auto;overflow-x:hidden;padding:24px;min-height:0;min-width:0;}
+.content::-webkit-scrollbar{width:5px;}
+.content::-webkit-scrollbar-track{background:transparent;}
+.content::-webkit-scrollbar-thumb{background:var(--border);border-radius:4px;}
+
+.screen{display:none;}
+.screen.active{display:block;padding-bottom:40px;}
+
+/* ══════════════════════════════════════
+   SHARED COMPONENTS
+══════════════════════════════════════ */
+
+/* Page header */
+.page-hdr{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:22px;flex-wrap:wrap;gap:10px;}
+.page-hdr h1{font-size:20px;font-weight:800;color:var(--text-primary);margin-bottom:3px;}
+.page-hdr p{font-size:13px;color:var(--text-secondary);}
+
+/* KPI cards — fixed equal height, no collapsing */
+.kpi-row{display:grid;gap:14px;margin-bottom:22px;align-items:stretch;}
+.kpi-row.cols-4{grid-template-columns:repeat(4,minmax(0,1fr));}
+.kpi-row.cols-3{grid-template-columns:repeat(3,minmax(0,1fr));}
+
+.kpi-card{
+  background:var(--card);border:1px solid var(--border-light);
+  border-radius:var(--radius-lg);padding:18px 20px;
+  display:flex;flex-direction:column;min-width:0;
+}
+.kpi-card .kpi-lbl{font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.6px;margin-bottom:10px;}
+.kpi-card .kpi-val{font-size:26px;font-weight:800;color:var(--text-primary);letter-spacing:-0.5px;margin-bottom:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.kpi-card .kpi-sub{font-size:12px;color:var(--text-secondary);}
+.kpi-card .kpi-sub strong{color:var(--text-primary);}
+.kpi-badge{
+  display:inline-flex;align-items:center;gap:4px;
+  font-size:11px;font-weight:600;padding:3px 8px;border-radius:100px;margin-top:8px;
+  width:fit-content;white-space:nowrap;
+}
+.kpi-badge.up{background:var(--green-light);color:var(--green-text);}
+.kpi-badge.down{background:var(--red-light);color:var(--red-text);}
+.kpi-badge.neutral{background:var(--amber-light);color:var(--amber-text);}
+.kpi-badge.purple{background:var(--primary-light);color:var(--primary-dark);}
+
+/* Cards */
+.card{background:var(--card);border:1px solid var(--border-light);border-radius:var(--radius-lg);overflow:hidden;}
+.card-hdr{display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-bottom:1px solid var(--border-light);gap:10px;flex-wrap:wrap;}
+.card-hdr h3{font-size:14.5px;font-weight:700;white-space:nowrap;}
+.card-body{padding:20px;}
+
+/* Tables — key fix: prevent text wrapping, keep columns tight */
+.tbl-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;min-width:600px;}
+table th{
+  padding:10px 14px;text-align:left;
+  font-size:10.5px;font-weight:700;color:var(--text-muted);
+  text-transform:uppercase;letter-spacing:0.5px;
+  background:var(--bg);border-bottom:1px solid var(--border-light);
+  white-space:nowrap;
+}
+table td{
+  padding:12px 14px;border-bottom:1px solid var(--border-light);
+  vertical-align:middle;font-size:13px;white-space:nowrap;
+}
+/* Allow business name + email cells to wrap naturally */
+table td.td-wrap{white-space:normal;min-width:120px;}
+table tr:last-child td{border-bottom:none;}
+table tbody tr:hover td{background:#FAFBFF;cursor:pointer;}
+.mono{font-family:'SF Mono',ui-monospace,monospace;font-size:12px;color:var(--text-secondary);}
+
+/* Status pills */
+.pill{
+  display:inline-flex;align-items:center;gap:5px;
+  font-size:11.5px;font-weight:600;padding:3px 9px;
+  border-radius:100px;white-space:nowrap;
+}
+.pill::before{content:'';width:5px;height:5px;border-radius:50%;flex-shrink:0;}
+.pill.green{background:var(--green-light);color:var(--green-text);}
+.pill.green::before{background:var(--green);}
+.pill.red{background:var(--red-light);color:var(--red-text);}
+.pill.red::before{background:var(--red);}
+.pill.amber{background:var(--amber-light);color:var(--amber-text);}
+.pill.amber::before{background:var(--amber);}
+.pill.blue{background:var(--blue-light);color:var(--blue-text);}
+.pill.blue::before{background:var(--blue);}
+.pill.purple{background:var(--primary-light);color:var(--primary-dark);}
+.pill.purple::before{background:var(--primary);}
+.pill.grey{background:#F1F5F9;color:#475569;}
+.pill.grey::before{background:#94A3B8;}
+
+/* Risk badge */
+.risk{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:6px;letter-spacing:0.3px;white-space:nowrap;}
+.risk.high{background:var(--red-light);color:var(--red-text);}
+.risk.medium{background:var(--amber-light);color:var(--amber-text);}
+.risk.low{background:var(--green-light);color:var(--green-text);}
+
+/* Buttons */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;
+  padding:9px 16px;border-radius:8px;font-size:13px;font-weight:600;
+  cursor:pointer;transition:all 0.18s;border:none;white-space:nowrap;
+  font-family:'Plus Jakarta Sans',sans-serif;flex-shrink:0;
+}
+.btn-primary{background:var(--primary);color:white;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-ghost{background:transparent;color:var(--text-secondary);border:1px solid var(--border);}
+.btn-ghost:hover{background:var(--bg);border-color:var(--border);}
+.btn-danger{background:var(--red-light);color:var(--red-text);border:1px solid #FCA5A5;}
+.btn-danger:hover{background:#FEE2E2;}
+.btn-success{background:var(--green-light);color:var(--green-text);border:1px solid #86EFAC;}
+.btn-success:hover{background:#D1FAE5;}
+.btn-sm{padding:6px 12px;font-size:12px;}
+.btn-xs{padding:4px 9px;font-size:11.5px;border-radius:6px;}
+
+/* Three-dot actions */
+.tbl-action-btn{
+  background:none;border:none;cursor:pointer;padding:4px 8px;
+  border-radius:6px;color:var(--text-muted);font-size:16px;
+  transition:all 0.15s;
+}
+.tbl-action-btn:hover{background:var(--bg);color:var(--text-primary);}
+
+/* Section title row */
+.sec-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:14px;}
+.sec-row h2{font-size:15px;font-weight:700;}
+.sec-row a{font-size:12.5px;color:var(--primary);font-weight:600;cursor:pointer;}
+
+/* Filter chips */
+.filter-chips{display:flex;gap:6px;margin-bottom:14px;flex-wrap:wrap;align-items:center;}
+.chip{
+  padding:5px 13px;border-radius:100px;font-size:12px;font-weight:600;
+  cursor:pointer;transition:all 0.15s;border:1px solid var(--border-light);
+  background:var(--card);color:var(--text-secondary);white-space:nowrap;
+}
+.chip:hover{border-color:var(--primary);color:var(--primary);}
+.chip.active{background:var(--primary);color:white;border-color:var(--primary);}
+.chip .chip-count{font-size:10px;opacity:0.75;margin-left:3px;}
+
+/* Tabs */
+.tabs{display:flex;gap:0;border-bottom:1px solid var(--border-light);margin-bottom:20px;overflow-x:auto;}
+.tab{
+  padding:10px 16px;font-size:13px;font-weight:600;cursor:pointer;
+  color:var(--text-muted);border-bottom:2px solid transparent;margin-bottom:-1px;
+  transition:all 0.15s;white-space:nowrap;flex-shrink:0;
+}
+.tab:hover{color:var(--text-primary);}
+.tab.active{color:var(--primary);border-color:var(--primary);}
+
+/* Two-col layout — right panel fixed at 300px */
+.two-col{display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:18px;align-items:start;}
+.three-col{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr) 280px;gap:18px;align-items:start;}
+
+/* Detail page header — key fix: flex-wrap so actions don't get pushed off */
+.detail-hdr{
+  background:var(--card);border:1px solid var(--border-light);
+  border-radius:var(--radius-lg);padding:20px 24px;margin-bottom:18px;
+}
+.detail-hdr .biz-name{font-size:20px;font-weight:800;margin-bottom:4px;}
+.detail-hdr-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px;}
+
+/* Avatar circle */
+.av{
+  border-radius:50%;display:flex;align-items:center;justify-content:center;
+  font-weight:700;flex-shrink:0;
+}
+.av-sm{width:32px;height:32px;font-size:11px;}
+.av-md{width:40px;height:40px;font-size:13px;}
+.av-lg{width:52px;height:52px;font-size:16px;}
+.av-purple{background:var(--primary-light);color:var(--primary);}
+.av-navy{background:var(--sidebar-bg);color:white;}
+.av-green{background:var(--green-light);color:var(--green-text);}
+
+/* Inline info row */
+.info-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:16px;}
+.info-item .info-lbl{font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:4px;}
+.info-item .info-val{font-size:13.5px;font-weight:600;color:var(--text-primary);}
+.info-item .info-val.mono{font-family:monospace;font-size:12.5px;}
+
+/* Timeline / audit trail */
+.timeline{display:flex;flex-direction:column;gap:0;}
+.tl-item{display:flex;gap:12px;padding:10px 0;position:relative;}
+.tl-item:not(:last-child)::after{
+  content:'';position:absolute;left:11px;top:32px;bottom:-4px;width:1px;background:var(--border-light);
+}
+.tl-dot{
+  width:22px;height:22px;border-radius:50%;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;font-size:10px;
+}
+.tl-dot.purple{background:var(--primary-light);color:var(--primary);}
+.tl-dot.green{background:var(--green-light);color:var(--green-text);}
+.tl-dot.red{background:var(--red-light);color:var(--red-text);}
+.tl-dot.amber{background:var(--amber-light);color:var(--amber-text);}
+.tl-dot.grey{background:#F1F5F9;color:#94A3B8;}
+.tl-body .tl-action{font-size:13px;font-weight:600;color:var(--text-primary);}
+.tl-body .tl-meta{font-size:11.5px;color:var(--text-muted);margin-top:2px;}
+
+/* Right panel */
+.right-panel{display:flex;flex-direction:column;gap:14px;}
+
+/* Banner */
+.banner{
+  display:flex;align-items:flex-start;gap:10px;
+  padding:12px 16px;border-radius:var(--radius);
+  font-size:13px;margin-bottom:16px;
+}
+.banner.amber{background:var(--amber-light);border:1px solid #FDE68A;color:var(--amber-text);}
+.banner.red{background:var(--red-light);border:1px solid #FCA5A5;color:var(--red-text);}
+.banner.purple{background:var(--primary-light);border:1px solid rgba(107,63,245,0.2);color:var(--primary-dark);}
+
+/* Risk meter */
+.risk-meter{margin:14px 0;}
+.risk-bar{height:8px;background:var(--bg);border-radius:100px;overflow:hidden;margin:6px 0 4px;}
+.risk-fill{height:100%;border-radius:100px;transition:width 0.4s;}
+.risk-fill.low{background:var(--green);}
+.risk-fill.medium{background:var(--amber);}
+.risk-fill.high{background:var(--red);}
+.risk-checks{display:flex;flex-direction:column;gap:7px;margin-top:12px;}
+.risk-check{display:flex;align-items:center;justify-content:space-between;font-size:12px;}
+.risk-check .check-name{color:var(--text-secondary);font-weight:500;}
+.rc-pass{font-size:10.5px;font-weight:700;color:var(--green-text);background:var(--green-light);padding:2px 7px;border-radius:100px;}
+.rc-fail{font-size:10.5px;font-weight:700;color:var(--red-text);background:var(--red-light);padding:2px 7px;border-radius:100px;}
+.rc-warn{font-size:10.5px;font-weight:700;color:var(--amber-text);background:var(--amber-light);padding:2px 7px;border-radius:100px;}
+.risk-edit-btn{background:none;border:none;cursor:pointer;font-size:10px;color:var(--text-muted);padding:2px 4px;border-radius:4px;transition:all 0.15s;line-height:1;}
+.risk-edit-btn:hover{background:var(--primary-light);color:var(--primary);}
+.risk-edit-btn[data-hidden]{display:none!important;}
+
+/* Activity feed item */
+.feed-item{
+  display:flex;gap:12px;padding:12px 0;
+  border-bottom:1px solid var(--border-light);
+}
+.feed-item:last-child{border-bottom:none;}
+.feed-ico{
+  width:34px;height:34px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.feed-ico.purple{background:var(--primary-light);}
+.feed-ico.green{background:var(--green-light);}
+.feed-ico.red{background:var(--red-light);}
+.feed-ico.amber{background:var(--amber-light);}
+.feed-ico.blue{background:var(--blue-light);}
+.feed-title{font-size:13px;font-weight:600;color:var(--text-primary);margin-bottom:3px;}
+.feed-sub{font-size:12px;color:var(--text-muted);}
+.feed-time{font-size:11px;color:var(--text-muted);margin-left:auto;flex-shrink:0;padding-top:2px;}
+
+/* Document card */
+.doc-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;}
+.doc-card{
+  border:1px solid var(--border-light);border-radius:var(--radius);
+  padding:14px;cursor:pointer;transition:all 0.15s;
+}
+.doc-card:hover{border-color:var(--primary);background:#FAFBFF;}
+.doc-card .doc-ico{font-size:22px;margin-bottom:8px;}
+.doc-card .doc-name{font-size:12.5px;font-weight:600;color:var(--text-primary);margin-bottom:4px;}
+.doc-card .doc-meta{font-size:11px;color:var(--text-muted);}
+
+/* Dispute side-by-side */
+.dispute-sides{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+.dispute-side{
+  border:1px solid var(--border-light);border-radius:var(--radius-lg);padding:16px;
+}
+.dispute-side h4{font-size:12.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:12px;}
+.dispute-side.merchant-side{border-top:3px solid var(--primary);}
+.dispute-side.customer-side{border-top:3px solid var(--blue);}
+
+/* Assignee chip */
+.assignee-chip{
+  display:inline-flex;align-items:center;gap:6px;
+  background:var(--bg);border:1px solid var(--border-light);
+  border-radius:100px;padding:3px 10px 3px 4px;
+  font-size:12px;font-weight:600;color:var(--text-secondary);
+  cursor:pointer;transition:all 0.15s;
+}
+.assignee-chip:hover{border-color:var(--primary);color:var(--primary);}
+.assignee-chip .ac-av{width:20px;height:20px;border-radius:50%;background:var(--primary-light);color:var(--primary);font-size:8px;font-weight:700;display:flex;align-items:center;justify-content:center;}
+.unassigned-chip{
+  display:inline-flex;align-items:center;gap:5px;
+  background:var(--bg);border:1px dashed var(--border);
+  border-radius:100px;padding:3px 10px;
+  font-size:12px;color:var(--text-muted);cursor:pointer;
+}
+
+/* Textarea */
+textarea{
+  width:100%;padding:10px 12px;border:1px solid var(--border);border-radius:var(--radius);
+  font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;color:var(--text-primary);
+  resize:vertical;min-height:80px;outline:none;background:var(--card);
+}
+textarea:focus{border-color:var(--primary);box-shadow:0 0 0 3px rgba(107,63,245,0.08);}
+
+/* SLA indicator */
+.sla-ok{color:var(--green-text);font-weight:700;font-size:12px;}
+.sla-warn{color:var(--amber-text);font-weight:700;font-size:12px;}
+.sla-late{color:var(--red-text);font-weight:700;font-size:12px;}
+
+/* Stats row in details */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:18px;}
+.stat-block{background:var(--card);border:1px solid var(--border-light);border-radius:var(--radius);padding:14px 16px;}
+.stat-block .s-lbl{font-size:10.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.stat-block .s-val{font-size:20px;font-weight:800;color:var(--text-primary);letter-spacing:-0.3px;}
+.stat-block .s-sub{font-size:11.5px;color:var(--text-secondary);margin-top:3px;}
+
+/* Back link */
+.back-link{
+  display:inline-flex;align-items:center;gap:6px;
+  font-size:12.5px;font-weight:600;color:var(--text-muted);
+  cursor:pointer;margin-bottom:16px;transition:color 0.15s;
+}
+.back-link:hover{color:var(--primary);}
+
+/* Toast */
+.toast{
+  position:fixed;bottom:24px;right:24px;z-index:4000;
+  background:var(--text-primary);color:white;
+  border-radius:10px;padding:12px 18px;
+  font-size:13px;font-weight:500;
+  display:flex;align-items:center;gap:10px;
+  box-shadow:0 8px 24px rgba(0,0,0,0.2);
+  transform:translateY(80px);opacity:0;transition:all 0.3s;
+  max-width:320px;
+}
+.toast.show{transform:translateY(0);opacity:1;}
+
+/* Modal */
+.modal-overlay{
+  display:none;position:fixed;inset:0;z-index:5000;
+  background:rgba(0,0,0,0.45);align-items:center;justify-content:center;
+}
+.modal-overlay.open{display:flex;}
+.modal{
+  background:var(--card);border-radius:var(--radius-lg);
+  padding:28px;width:440px;max-width:94vw;
+  box-shadow:0 20px 60px rgba(0,0,0,0.25);
+}
+.modal h3{font-size:17px;font-weight:800;margin-bottom:8px;}
+.modal p{font-size:13.5px;color:var(--text-secondary);margin-bottom:18px;line-height:1.6;}
+.modal label{display:block;font-size:12px;font-weight:700;color:var(--text-secondary);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.modal select,.modal input[type="text"]{
+  width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;
+  font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;
+  outline:none;margin-bottom:14px;background:var(--card);
+}
+.modal select:focus,.modal input:focus{border-color:var(--primary);}
+.modal-footer{display:flex;justify-content:flex-end;gap:10px;margin-top:20px;}
+
+/* ══════════════════════════════════════
+   SCREEN: OVERVIEW
+══════════════════════════════════════ */
+.activity-list{display:flex;flex-direction:column;}
+
+/* Role-based visibility */
+[data-role-hide]{display:none!important;}
+.role-badge-switcher{
+  display:flex;align-items:center;gap:6px;flex-wrap:wrap;
+  background:rgba(255,255,255,0.05);border-radius:8px;padding:4px 8px;
+}
+.role-sw-btn{
+  padding:3px 9px;border-radius:6px;font-size:10px;font-weight:700;border:none;
+  cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;
+  background:transparent;color:rgba(255,255,255,0.4);transition:all 0.15s;
+}
+.role-sw-btn:hover{background:rgba(255,255,255,0.1);color:white;}
+.role-sw-btn.active{background:var(--primary);color:white;}
+.role-sw-sep{width:1px;height:10px;background:rgba(255,255,255,0.15);}
+
+/* My Tasks panel */
+.tasks-panel{
+  background:var(--card);border:1px solid var(--border-light);
+  border-radius:var(--radius-lg);padding:0;overflow:hidden;
+  margin-top:22px;
+}
+.tasks-panel-hdr{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 20px;border-bottom:1px solid var(--border-light);
+  background:linear-gradient(135deg,var(--primary-light),white);
+}
+.tasks-panel-hdr h3{font-size:14px;font-weight:700;color:var(--primary-dark);}
+.task-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px 20px;border-bottom:1px solid var(--border-light);
+  cursor:pointer;transition:background 0.15s;
+}
+.task-item:last-child{border-bottom:none;}
+.task-item:hover{background:#FAFBFF;}
+.task-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+.task-dot.red{background:var(--red);}
+.task-dot.amber{background:var(--amber);}
+.task-dot.blue{background:var(--blue);}
+.task-dot.purple{background:var(--primary);}
+.task-label{font-size:13px;font-weight:600;color:var(--text-primary);flex:1;}
+.task-meta{font-size:11.5px;color:var(--text-muted);}
+.task-cta{font-size:11.5px;font-weight:700;color:var(--primary);}
+
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:0.5;}}
+
+/* ══════════════════════════════════════
+   FILTER PANEL (slide-in)
+══════════════════════════════════════ */
+.filter-panel-overlay{
+  display:none;position:fixed;inset:0;z-index:2000;background:rgba(0,0,0,0.25);
+}
+.filter-panel-overlay.open{display:block;}
+.filter-panel{
+  position:fixed;top:36px;right:0;bottom:0;z-index:2001;
+  width:320px;background:var(--card);border-left:1px solid var(--border);
+  padding:20px;overflow-y:auto;display:none;flex-direction:column;gap:18px;
+}
+.filter-panel.open{display:flex;}
+.fp-hdr{display:flex;align-items:center;justify-content:space-between;}
+.fp-hdr h3{font-size:15px;font-weight:700;}
+.fp-hdr .fp-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--text-muted);}
+.fp-field label{display:block;font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;}
+.fp-field select,.fp-field input{
+  width:100%;padding:8px 10px;border:1px solid var(--border);border-radius:8px;
+  font-size:13px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;
+}
+.fp-field select:focus,.fp-field input:focus{border-color:var(--primary);}
+.fp-footer{display:flex;gap:8px;margin-top:auto;padding-top:14px;border-top:1px solid var(--border-light);}
+</style>
+</head>
+<body>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<!-- FILTER PANEL -->
+<div class="filter-panel-overlay" id="filterOverlay" onclick="closeFilter()">
+</div>
+<div class="filter-panel" id="filterPanel" onclick="event.stopPropagation()">
+  <div class="fp-hdr"><h3>Filter Transactions</h3><button class="fp-close" onclick="closeFilter()">✕</button></div>
+  <div class="fp-field"><label>Transaction Type</label><select><option>All types</option><option>Transfer</option><option>Payment</option><option>Withdrawal</option><option>Settlement</option></select></div>
+  <div class="fp-field"><label>Status</label><select><option>All statuses</option><option>Successful</option><option>Pending</option><option>Failed</option><option>Flagged</option></select></div>
+  <div class="fp-field"><label>Category</label><select><option>All categories</option><option>POS</option><option>Transfer</option><option>Wallet</option></select></div>
+  <div class="fp-field"><label>Reference</label><input type="text" placeholder="Provider / session / peer ref…"></div>
+  <div class="fp-field"><label>Wallet ID</label><input type="text" placeholder="WLT-XXXXXXXX"></div>
+  <div class="fp-field"><label>Account Number</label><input type="text" placeholder="10-digit account number"></div>
+  <div class="fp-field"><label>Amount Range</label>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+      <input type="text" placeholder="Min (₦)">
+      <input type="text" placeholder="Max (₦)">
+    </div>
+  </div>
+  <div class="fp-field" style="display:flex;align-items:center;justify-content:space-between;">
+    <label style="margin:0;">End of Day Withdrawal</label>
+    <div style="width:38px;height:22px;background:var(--primary);border-radius:100px;cursor:pointer;display:flex;align-items:center;padding:2px;"><div style="width:18px;height:18px;background:white;border-radius:50%;margin-left:auto;"></div></div>
+  </div>
+  <div class="fp-footer">
+    <button class="btn btn-ghost" style="flex:1;" onclick="closeFilter()">Clear</button>
+    <button class="btn btn-primary" style="flex:2;" onclick="applyFilter()">Apply Filter</button>
+  </div>
+</div>
+
+<!-- PROTOTYPE NAV -->
+<div class="proto-bar">
+  <span class="lbl">Screens</span>
+  <button class="pnav-btn active" onclick="showScreen('overview',this)">Overview</button>
+  <button class="pnav-btn" onclick="showScreen('biz-list',this)">Business List</button>
+  <button class="pnav-btn" onclick="showScreen('biz-detail',this)">Biz Profile</button>
+  <div class="pnav-sep"></div>
+  <button class="pnav-btn" onclick="showScreen('kyc-queue',this)">KYC Queue</button>
+  <button class="pnav-btn" onclick="showScreen('kyc-detail',this)">KYC Detail</button>
+  <div class="pnav-sep"></div>
+  <button class="pnav-btn" onclick="showScreen('transactions',this)">Transactions</button>
+  <button class="pnav-btn" onclick="showScreen('txn-detail',this)">Txn Detail</button>
+  <div class="pnav-sep"></div>
+  <button class="pnav-btn" onclick="showScreen('disputes',this)">Disputes</button>
+  <button class="pnav-btn" onclick="showScreen('dispute-detail',this)">Dispute Detail</button>
+  <div class="pnav-sep"></div>
+  <button class="pnav-btn" onclick="showScreen('settlements',this)">Settlements</button>
+  <button class="pnav-btn" onclick="showScreen('settings',this)">Settings</button>
+  <div class="pnav-sep"></div>
+  <span class="lbl" style="margin-left:8px;">Role</span>
+  <div class="role-badge-switcher">
+    <button class="role-sw-btn active" onclick="switchRole('super_admin',this)">Super Admin</button>
+    <div class="role-sw-sep"></div>
+    <button class="role-sw-btn" onclick="switchRole('compliance',this)">Compliance</button>
+    <div class="role-sw-sep"></div>
+    <button class="role-sw-btn" onclick="switchRole('finance',this)">Finance & Ops</button>
+    <div class="role-sw-sep"></div>
+    <button class="role-sw-btn" onclick="switchRole('cs',this)">CS</button>
+    <div class="role-sw-sep"></div>
+    <button class="role-sw-btn" onclick="switchRole('product',this)">Product</button>
+  </div>
+</div>
+
+<div class="layout">
+<!-- ══════════════════════════════════════
+     SIDEBAR
+══════════════════════════════════════ -->
+<div class="sidebar">
+  <div class="sb-logo">
+    <div class="sb-logo-mark">PA</div>
+    <div class="sb-logo-text">PocketApp<small>Admin Console</small></div>
+  </div>
+
+  <div class="sb-nav">
+    <div class="sb-section-lbl">Main</div>
+    <div id="sb-nav-overview" class="sb-item active" onclick="showScreen('overview',null,'Overview')">
+      <span class="sb-ico">⬛</span> Overview
+    </div>
+
+    <div class="sb-section-lbl" style="margin-top:14px;">Merchants</div>
+    <div id="sb-nav-biz" class="sb-item" onclick="showScreen('biz-list',null,'Business Management')">
+      <span class="sb-ico">🏢</span> Business Profiles
+    </div>
+    <div id="sb-nav-kyc" class="sb-item" onclick="showScreen('kyc-queue',null,'KYC / Onboarding')">
+      <span class="sb-ico">📋</span> KYC / Onboarding
+      <span class="sb-badge amber">8</span>
+    </div>
+    <div id="sb-nav-flagged" class="sb-item" onclick="showScreen('biz-list',null,'Flagged Businesses')">
+      <span class="sb-ico">🚩</span> Flagged Businesses
+      <span class="sb-badge">3</span>
+    </div>
+
+    <div class="sb-section-lbl" style="margin-top:14px;">Operations</div>
+    <div id="sb-nav-txns" class="sb-item" onclick="showScreen('transactions',null,'Transactions')">
+      <span class="sb-ico">↕️</span> Transactions
+    </div>
+    <div id="sb-nav-disputes" class="sb-item" onclick="showScreen('disputes',null,'Disputes')">
+      <span class="sb-ico">⚡</span> Disputes
+      <span class="sb-badge">5</span>
+    </div>
+    <div id="sb-nav-settlements" class="sb-item" onclick="showScreen('settlements',null,'Settlements')">
+      <span class="sb-ico">💸</span> Settlements
+    </div>
+
+    <div class="sb-section-lbl" style="margin-top:14px;">Config</div>
+    <div id="sb-nav-settings" class="sb-item" onclick="showScreen('settings',null,'Settings')">
+      <span class="sb-ico">⚙️</span> Settings
+    </div>
+  </div>
+
+  <div class="sb-footer">
+    <div class="sb-avatar">EO</div>
+    <div style="flex:1;min-width:0;">
+      <div class="sb-user-name">Efe Ogufere</div>
+      <div class="sb-user-role">Super Admin</div>
+    </div>
+    <div class="sb-role-badge">Super Admin</div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════
+     MAIN
+══════════════════════════════════════ -->
+<div class="main">
+  <div class="topbar">
+    <div class="topbar-title" id="topbarTitle">Overview</div>
+    <div class="topbar-search">
+      <span class="s-ico">🔍</span>
+      <input type="text" placeholder="Search merchants, references, transactions…">
+    </div>
+    <button class="icon-btn">🔔</button>
+    <button class="icon-btn">⚙️</button>
+    <div class="tb-role">Super Admin</div>
+  </div>
+
+  <div class="content">
+
+    <!-- ════════════════════════════════
+         SCREEN: OVERVIEW
+    ════════════════════════════════ -->
+    <div class="screen active" id="screen-overview">
+      <div class="page-hdr">
+        <div>
+          <h1 id="overview-greeting">Good afternoon, Efe</h1>
+          <p>Monday, 24 February 2026 · Live dashboard</p>
+        </div>
+        <div style="display:flex;gap:8px;align-items:center;">
+          <div style="display:inline-flex;align-items:center;gap:5px;background:var(--green-light);color:var(--green-text);font-size:11.5px;font-weight:700;padding:5px 11px;border-radius:100px;">
+            <span style="width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 1.5s infinite;"></span> Live
+          </div>
+          <select style="padding:7px 12px;border:1px solid var(--border);border-radius:8px;font-size:12.5px;font-family:'Plus Jakarta Sans',sans-serif;background:var(--card);">
+            <option>Today</option><option>7 days</option><option>30 days</option><option>Custom</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Shared KPIs — 4 cards, card 2 swaps content by role (no hidden grid cells) -->
+      <div class="kpi-row cols-4">
+        <div class="kpi-card">
+          <div class="kpi-lbl">Active Merchants</div>
+          <div class="kpi-val">1,847</div>
+          <div class="kpi-badge up">↑ +43 this week</div>
+        </div>
+        <!-- Card 2: inner content swapped by JS, card itself always visible -->
+        <div class="kpi-card" id="kpi-card2">
+          <div id="kpi-card2-kyc">
+            <div class="kpi-lbl">Pending KYC</div>
+            <div class="kpi-val">8</div>
+            <div class="kpi-sub">Oldest: <strong>3 days ago</strong></div>
+            <div class="kpi-badge neutral">⏳ 2 high risk</div>
+          </div>
+          <div id="kpi-card2-disputes" style="display:none;">
+            <div class="kpi-lbl">Open Disputes</div>
+            <div class="kpi-val">5</div>
+            <div class="kpi-sub"><strong>2</strong> escalated · <strong>3</strong> in progress</div>
+            <div class="kpi-badge down">↑ +2 today</div>
+          </div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-lbl">Open Disputes</div>
+          <div class="kpi-val">5</div>
+          <div class="kpi-sub"><strong>2</strong> escalated · <strong>3</strong> in progress</div>
+          <div class="kpi-badge down">↑ +2 today</div>
+        </div>
+        <div class="kpi-card">
+          <div class="kpi-lbl">Today's Volume</div>
+          <div class="kpi-val">₦84.2M</div>
+          <div class="kpi-sub"><strong>3,291</strong> transactions</div>
+          <div class="kpi-badge up">↑ +12% vs yesterday</div>
+        </div>
+      </div>
+
+      <div class="two-col" style="grid-template-columns:1fr 360px;">
+        <!-- Activity feed -->
+        <div class="card">
+          <div class="card-hdr">
+            <h3>Activity Feed</h3>
+            <a style="font-size:12.5px;color:var(--primary);font-weight:600;cursor:pointer;">View all</a>
+          </div>
+          <div class="card-body" style="padding:0 20px;">
+            <div class="feed-item">
+              <div class="feed-ico green">✅</div>
+              <div style="flex:1;">
+                <div class="feed-title">KYC Approved — <span style="color:var(--primary)">Shoprite NG Ltd</span></div>
+                <div class="feed-sub">Approved by Amara O. · Compliance</div>
+              </div>
+              <div class="feed-time">2m ago</div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ico red">⚠️</div>
+              <div style="flex:1;">
+                <div class="feed-title">Merchant Flagged — <span style="color:var(--primary)">TechHub Lagos</span></div>
+                <div class="feed-sub">Flagged by Kemi A. · Operations</div>
+              </div>
+              <div class="feed-time">14m ago</div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ico amber">🔄</div>
+              <div style="flex:1;">
+                <div class="feed-title">KYC Returned — <span style="color:var(--primary)">Afrocentric Foods</span></div>
+                <div class="feed-sub">Info requested by Tunde B. · Compliance</div>
+              </div>
+              <div class="feed-time">1h ago</div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ico purple">⚡</div>
+              <div style="flex:1;">
+                <div class="feed-title">Dispute Escalated — <span style="color:var(--primary)">MedPlus Pharmacy</span></div>
+                <div class="feed-sub">Escalated by Chidi O. · CS</div>
+              </div>
+              <div class="feed-time">2h ago</div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ico green">💸</div>
+              <div style="flex:1;">
+                <div class="feed-title">Settlement Run Completed — <span style="color:var(--primary)">112 merchants</span></div>
+                <div class="feed-sub">₦18.4M settled · Finance team</div>
+              </div>
+              <div class="feed-time">3h ago</div>
+            </div>
+            <div class="feed-item">
+              <div class="feed-ico red">🔒</div>
+              <div style="flex:1;">
+                <div class="feed-title">Merchant Suspended — <span style="color:var(--primary)">QuickMart Stores</span></div>
+                <div class="feed-sub">Suspended by Ngozi M. · Operations</div>
+              </div>
+              <div class="feed-time">5h ago</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right column — role-adaptive widgets -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+
+          <!-- KYC widget — Compliance & Super Admin only -->
+          <div class="card" id="widget-kyc" data-roles="super_admin,compliance">
+            <div class="card-hdr">
+              <h3>KYC Queue</h3>
+              <span class="pill purple">8 pending</span>
+            </div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+                <div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px;">
+                  <div style="font-size:20px;font-weight:800;color:var(--amber-text);">6</div>
+                  <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;">Awaiting</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px;">
+                  <div style="font-size:20px;font-weight:800;color:var(--blue-text);">2</div>
+                  <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;">Info Requested</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px;">
+                  <div style="font-size:20px;font-weight:800;color:var(--green-text);">7</div>
+                  <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;">Approved Today</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px;">
+                  <div style="font-size:20px;font-weight:800;color:var(--red-text);">1</div>
+                  <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;">Rejected Today</div>
+                </div>
+              </div>
+              <button class="btn btn-primary" style="width:100%;" onclick="showScreen('kyc-queue',null,'KYC / Onboarding')">Open KYC Queue →</button>
+            </div>
+          </div>
+
+          <!-- Disputes widget — CS, Operations, Super Admin -->
+          <div class="card" id="widget-disputes" data-roles="super_admin,cs,finance">
+            <div class="card-hdr">
+              <h3>My Dispute Queue</h3>
+              <span class="pill red">5 open</span>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div style="padding:12px 16px;border-bottom:1px solid var(--border-light);cursor:pointer;" onclick="showScreen('dispute-detail',null,'Dispute DIS-2025-00041')">
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                  <span style="font-size:13px;font-weight:600;">MedPlus Holdings</span>
+                  <span class="sla-late" style="font-size:11.5px;">⏰ 2h overdue</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                  <span class="mono">DIS-2025-00041</span>
+                  <span class="risk high">High</span>
+                </div>
+              </div>
+              <div style="padding:12px 16px;border-bottom:1px solid var(--border-light);cursor:pointer;" onclick="showScreen('dispute-detail',null,'Dispute DIS-2025-00038')">
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                  <span style="font-size:13px;font-weight:600;">Shoprite NG</span>
+                  <span class="sla-warn" style="font-size:11.5px;">⏱ 6h remaining</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                  <span class="mono">DIS-2025-00038</span>
+                  <span class="risk medium">Medium</span>
+                </div>
+              </div>
+              <div style="padding:12px 16px;cursor:pointer;" onclick="showScreen('disputes',null,'Disputes')">
+                <span style="font-size:12.5px;color:var(--primary);font-weight:600;">View all disputes →</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Settlements widget — Finance & Super Admin -->
+          <div class="card" id="widget-settlements" data-roles="super_admin,finance" style="display:none;">
+            <div class="card-hdr">
+              <h3>Settlements</h3>
+              <span class="pill amber">₦6.2M pending</span>
+            </div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;">
+                <div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px;">
+                  <div style="font-size:18px;font-weight:800;color:var(--green-text);">₦18.4M</div>
+                  <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;">Settled Today</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px;">
+                  <div style="font-size:18px;font-weight:800;color:var(--amber-text);">4</div>
+                  <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;">On Hold</div>
+                </div>
+              </div>
+              <button class="btn btn-primary" style="width:100%;" onclick="showScreen('settlements',null,'Settlements')">Go to Settlements →</button>
+            </div>
+          </div>
+
+          <!-- Flagged transactions — Compliance, Operations, Super Admin -->
+          <div class="card" id="widget-flagged" data-roles="super_admin,compliance,finance">
+            <div class="card-hdr">
+              <h3>Flagged Transactions</h3>
+              <span class="pill red">3 active</span>
+            </div>
+            <div class="card-body" style="padding:0;">
+              <div style="padding:12px 16px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#FAFBFF'" onmouseout="this.style.background=''" onclick="showScreen('txn-detail',null,'Transaction Detail')">
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                  <span style="font-size:13px;font-weight:600;">TechHub Lagos</span>
+                  <span style="font-size:13.5px;font-weight:700;color:var(--red);">₦2,450,000</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                  <span class="mono">TXN-2024-09812</span>
+                  <span class="risk high">High</span>
+                </div>
+              </div>
+              <div style="padding:12px 16px;border-bottom:1px solid var(--border-light);cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#FAFBFF'" onmouseout="this.style.background=''" onclick="showScreen('txn-detail',null,'Transaction Detail')">
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                  <span style="font-size:13px;font-weight:600;">Afrocentric Foods</span>
+                  <span style="font-size:13.5px;font-weight:700;color:var(--amber);">₦890,000</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                  <span class="mono">TXN-2024-09701</span>
+                  <span class="risk medium">Medium</span>
+                </div>
+              </div>
+              <div style="padding:12px 16px;cursor:pointer;transition:background 0.15s;" onmouseover="this.style.background='#FAFBFF'" onmouseout="this.style.background=''" onclick="showScreen('txn-detail',null,'Transaction Detail')">
+                <div style="display:flex;justify-content:space-between;margin-bottom:3px;">
+                  <span style="font-size:13px;font-weight:600;">QuickMart Stores</span>
+                  <span style="font-size:13.5px;font-weight:700;color:var(--amber);">₦540,000</span>
+                </div>
+                <div style="display:flex;justify-content:space-between;">
+                  <span class="mono">TXN-2024-09688</span>
+                  <span class="risk medium">Medium</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product analytics widget — Product role -->
+          <div class="card" id="widget-product" data-roles="product" style="display:none;">
+            <div class="card-hdr">
+              <h3>Platform Health</h3>
+              <span class="pill green">All systems normal</span>
+            </div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;">
+                <div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px;">
+                  <div style="font-size:18px;font-weight:800;color:var(--green-text);">98.4%</div>
+                  <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;">Uptime (30d)</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px;">
+                  <div style="font-size:18px;font-weight:800;color:var(--primary);">3,291</div>
+                  <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;">Txns Today</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px;">
+                  <div style="font-size:18px;font-weight:800;color:var(--amber-text);">8</div>
+                  <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;">KYC Backlog</div>
+                </div>
+                <div style="text-align:center;padding:10px;background:var(--bg);border-radius:8px;">
+                  <div style="font-size:18px;font-weight:800;color:var(--red-text);">5</div>
+                  <div style="font-size:10.5px;color:var(--text-muted);font-weight:600;">Open Disputes</div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- My Tasks strip — role-specific -->
+      <div class="tasks-panel" id="my-tasks-panel">
+        <div class="tasks-panel-hdr">
+          <h3 id="tasks-panel-title">📋 My Tasks</h3>
+          <span style="font-size:12px;color:var(--primary-dark);font-weight:600;" id="tasks-count">4 pending</span>
+        </div>
+        <!-- Super Admin tasks -->
+        <div id="tasks-super_admin">
+          <div class="task-item" onclick="showScreen('kyc-queue',null,'KYC / Onboarding')">
+            <div class="task-dot amber"></div>
+            <div class="task-label">Review KYC — MedPlus Holdings <span style="font-size:11.5px;color:var(--text-muted);">(High Risk)</span></div>
+            <div class="task-meta">Submitted 3 days ago</div>
+            <div class="task-cta">Review →</div>
+          </div>
+          <div class="task-item" onclick="showScreen('dispute-detail',null,'Dispute DIS-2025-00041')">
+            <div class="task-dot red"></div>
+            <div class="task-label">Dispute overdue — DIS-2025-00041 · MedPlus Holdings</div>
+            <div class="task-meta">2h past SLA</div>
+            <div class="task-cta">Resolve →</div>
+          </div>
+          <div class="task-item" onclick="showScreen('settlements',null,'Settlements')">
+            <div class="task-dot amber"></div>
+            <div class="task-label">Settlement on hold — MedPlus Holdings · ₦890,000</div>
+            <div class="task-meta">Awaiting review</div>
+            <div class="task-cta">Action →</div>
+          </div>
+          <div class="task-item">
+            <div class="task-dot blue"></div>
+            <div class="task-label">Pending TIN verification — MedPlus Holdings</div>
+            <div class="task-meta">KYC Detail · Business Overview</div>
+            <div class="task-cta">Verify →</div>
+          </div>
+        </div>
+        <!-- Compliance tasks -->
+        <div id="tasks-compliance" style="display:none;">
+          <div class="task-item" onclick="showScreen('kyc-detail',null,'KYC Review — MedPlus Holdings')">
+            <div class="task-dot red"></div>
+            <div class="task-label">Review KYC — MedPlus Holdings <span style="font-size:11.5px;color:var(--red-text);">(AML Flagged)</span></div>
+            <div class="task-meta">Assigned to you · 3 days ago</div>
+            <div class="task-cta">Review →</div>
+          </div>
+          <div class="task-item" onclick="showScreen('kyc-queue',null,'KYC / Onboarding')">
+            <div class="task-dot amber"></div>
+            <div class="task-label">KYC Response received — Afrocentric Foods</div>
+            <div class="task-meta">Re-submitted documents · 1h ago</div>
+            <div class="task-cta">Review →</div>
+          </div>
+          <div class="task-item">
+            <div class="task-dot blue"></div>
+            <div class="task-label">Verify TIN — MedPlus Holdings · RC-1289340</div>
+            <div class="task-meta">Pending FIRS confirmation</div>
+            <div class="task-cta">Verify →</div>
+          </div>
+        </div>
+        <!-- Finance tasks -->
+        <div id="tasks-finance" style="display:none;">
+          <div class="task-item" onclick="showScreen('settlements',null,'Settlements')">
+            <div class="task-dot red"></div>
+            <div class="task-label">Settlement on hold — MedPlus Holdings · ₦890,000</div>
+            <div class="task-meta">Requires Finance approval</div>
+            <div class="task-cta">Release →</div>
+          </div>
+          <div class="task-item" onclick="showScreen('txn-detail',null,'Transaction Detail')">
+            <div class="task-dot amber"></div>
+            <div class="task-label">Flagged transaction pending review — TXN-2024-09812</div>
+            <div class="task-meta">₦2,450,000 · TechHub Lagos</div>
+            <div class="task-cta">Review →</div>
+          </div>
+          <div class="task-item">
+            <div class="task-dot blue"></div>
+            <div class="task-label">Next settlement run scheduled — 6:00 PM today</div>
+            <div class="task-meta">₦6.2M pending · 47 merchants</div>
+            <div class="task-cta">Prepare →</div>
+          </div>
+        </div>
+        <!-- CS tasks -->
+        <div id="tasks-cs" style="display:none;">
+          <div class="task-item" onclick="showScreen('dispute-detail',null,'Dispute DIS-2025-00041')">
+            <div class="task-dot red"></div>
+            <div class="task-label">Dispute overdue — DIS-2025-00041 · MedPlus Holdings</div>
+            <div class="task-meta">Assigned to you · 2h past SLA</div>
+            <div class="task-cta">Resolve →</div>
+          </div>
+          <div class="task-item" onclick="showScreen('dispute-detail',null,'Dispute DIS-2025-00038')">
+            <div class="task-dot amber"></div>
+            <div class="task-label">Dispute in progress — DIS-2025-00038 · Shoprite NG</div>
+            <div class="task-meta">6h remaining on SLA</div>
+            <div class="task-cta">Continue →</div>
+          </div>
+          <div class="task-item">
+            <div class="task-dot blue"></div>
+            <div class="task-label">Unassigned dispute — DIS-2025-00035 · ClearLight</div>
+            <div class="task-meta">14h remaining on SLA</div>
+            <div class="task-cta">Claim →</div>
+          </div>
+        </div>
+        <!-- Product tasks -->
+        <div id="tasks-product" style="display:none;">
+          <div class="task-item">
+            <div class="task-dot amber"></div>
+            <div class="task-label">KYC approval backlog increased — 8 pending (avg 2.4/day)</div>
+            <div class="task-meta">Up from 3 last week · Compliance team</div>
+            <div class="task-cta">View →</div>
+          </div>
+          <div class="task-item">
+            <div class="task-dot blue"></div>
+            <div class="task-label">Dispute resolution rate down 4% this week</div>
+            <div class="task-meta">5 open · avg resolution 52h</div>
+            <div class="task-cta">Insights →</div>
+          </div>
+          <div class="task-item">
+            <div class="task-dot purple"></div>
+            <div class="task-label">Settlement success rate — 98.4% (30 day)</div>
+            <div class="task-meta">Above target · 1.6% failures investigated</div>
+            <div class="task-cta">Review →</div>
+          </div>
+        </div>
+      </div>
+
+    </div><!-- /overview -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN: BUSINESS LIST
+    ════════════════════════════════ -->
+    <div class="screen" id="screen-biz-list">
+      <div class="page-hdr">
+        <div><h1>Business Management</h1><p>All registered PocketApp merchant accounts</p></div>
+        <button class="btn btn-primary" onclick="showModal('inviteModal')">+ Invite a Business</button>
+      </div>
+
+      <div class="kpi-row cols-3" style="margin-bottom:18px;">
+        <div class="kpi-card"><div class="kpi-lbl">Total Businesses</div><div class="kpi-val">1,847</div><div class="kpi-badge up">↑ +43 this week</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">Pending KYC</div><div class="kpi-val">8</div><div class="kpi-badge neutral">Oldest 3 days ago</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">Pending POS Approvals</div><div class="kpi-val">12</div><div class="kpi-badge purple">3 urgent</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div class="filter-chips" style="margin:0;gap:6px;">
+            <div class="chip active" onclick="setChip(this)">All <span class="chip-count">1,847</span></div>
+            <div class="chip" onclick="setChip(this)">Active <span class="chip-count">1,612</span></div>
+            <div class="chip" onclick="setChip(this)">Inactive <span class="chip-count">183</span></div>
+            <div class="chip" onclick="setChip(this)">Pending KYC <span class="chip-count">8</span></div>
+            <div class="chip" onclick="setChip(this)">Suspended <span class="chip-count">44</span></div>
+          </div>
+          <div class="topbar-search" style="width:220px;">
+            <span class="s-ico">🔍</span>
+            <input type="text" placeholder="Search businesses…">
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Business</th>
+              <th>Email</th>
+              <th>Phone</th>
+              <th>Date Created</th>
+              <th>KYC Status</th>
+              <th>Account Status</th>
+              <th></th>
+            </tr></thead>
+            <tbody>
+              <tr onclick="showScreen('biz-detail',null,'Shoprite NG Ltd')">
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="av av-sm av-purple">SN</div><div><div style="font-weight:600;">Shoprite NG Ltd</div><div class="mono">MRC-00291</div></div></div></td>
+                <td style="color:var(--text-secondary);">admin@shoprite.ng</td>
+                <td style="color:var(--text-secondary);">+234 801 234 5678</td>
+                <td style="color:var(--text-secondary);">Jan 12, 2025</td>
+                <td><span class="pill green">Approved</span></td>
+                <td><span class="pill green">Active</span></td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+              <tr onclick="showScreen('biz-detail',null,'TechHub Lagos')">
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="av av-sm av-green">TL</div><div><div style="font-weight:600;">TechHub Lagos</div><div class="mono">MRC-00307</div></div></div></td>
+                <td style="color:var(--text-secondary);">ops@techhub.com.ng</td>
+                <td style="color:var(--text-secondary);">+234 812 345 6789</td>
+                <td style="color:var(--text-secondary);">Feb 2, 2025</td>
+                <td><span class="pill green">Approved</span></td>
+                <td><span class="pill red">Suspended</span></td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+              <tr onclick="showScreen('biz-detail',null,'Afrocentric Foods')">
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="av av-sm" style="background:#FEF3C7;color:#92400E;">AF</div><div><div style="font-weight:600;">Afrocentric Foods</div><div class="mono">MRC-00318</div></div></div></td>
+                <td style="color:var(--text-secondary);">info@afrocentric.co</td>
+                <td style="color:var(--text-secondary);">+234 903 456 7890</td>
+                <td style="color:var(--text-secondary);">Feb 8, 2025</td>
+                <td><span class="pill amber">Info Requested</span></td>
+                <td><span class="pill grey">Inactive</span></td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+              <tr onclick="showScreen('kyc-queue',null,'KYC / Onboarding')">
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="av av-sm" style="background:#EFF6FF;color:#1E40AF;">MH</div><div><div style="font-weight:600;">MedPlus Holdings</div><div class="mono">MRC-00329</div></div></div></td>
+                <td style="color:var(--text-secondary);">accounts@medplus.ng</td>
+                <td style="color:var(--text-secondary);">+234 806 567 8901</td>
+                <td style="color:var(--text-secondary);">Feb 18, 2025</td>
+                <td><span class="pill amber">Pending Review</span></td>
+                <td><span class="pill grey">Pending KYC</span></td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="av av-sm" style="background:#F5F3FF;color:#4C1D95;">QM</div><div><div style="font-weight:600;">QuickMart Stores</div><div class="mono">MRC-00341</div></div></div></td>
+                <td style="color:var(--text-secondary);">store@quickmart.ng</td>
+                <td style="color:var(--text-secondary);">+234 817 678 9012</td>
+                <td style="color:var(--text-secondary);">Feb 21, 2025</td>
+                <td><span class="pill green">Approved</span></td>
+                <td><span class="pill red">Suspended</span></td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--border-light);">
+          <span style="font-size:12.5px;color:var(--text-muted);">Showing 1–20 of 1,847</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-xs">← Prev</button>
+            <button class="btn btn-ghost btn-xs" style="background:var(--primary);color:white;border-color:var(--primary);">1</button>
+            <button class="btn btn-ghost btn-xs">2</button>
+            <button class="btn btn-ghost btn-xs">3</button>
+            <button class="btn btn-ghost btn-xs">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /biz-list -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN: BUSINESS DETAIL
+    ════════════════════════════════ -->
+    <div class="screen" id="screen-biz-detail">
+      <div class="back-link" onclick="showScreen('biz-list',null,'Business Management')">← Back to Business List</div>
+
+      <div class="detail-hdr">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="av av-lg av-purple">SN</div>
+          <div>
+            <div class="biz-name">Shoprite NG Ltd</div>
+            <div class="detail-hdr-meta">
+              <span class="mono" style="font-size:12px;color:var(--text-muted);">MRC-00291</span>
+              <span class="pill green">Active</span>
+              <span class="pill purple" style="font-size:11px;">Tier 2</span>
+              <span style="font-size:12px;color:var(--text-muted);">Member since Jan 12, 2025</span>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm">Add Note</button>
+          <button class="btn btn-danger btn-sm" onclick="showModal('suspendModal')">Suspend Account</button>
+        </div>
+      </div>
+
+      <div class="stats-row">
+        <div class="stat-block"><div class="s-lbl">Wallet Balance</div><div class="s-val">₦4,280,000</div><div class="s-sub">Ledger: ₦4,390,000</div></div>
+        <div class="stat-block"><div class="s-lbl">Total Transactions</div><div class="s-val">8,412</div><div class="s-sub">↑ 143 this week</div></div>
+        <div class="stat-block"><div class="s-lbl">Open Disputes</div><div class="s-val">0</div><div class="s-sub">Last resolved 4d ago</div></div>
+        <div class="stat-block"><div class="s-lbl">Last Active</div><div class="s-val" style="font-size:15px;">Today</div><div class="s-sub">11:42 AM</div></div>
+      </div>
+
+      <div class="two-col">
+        <!-- Left: details + transactions -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="card-hdr"><h3>Account Details</h3><button class="btn btn-ghost btn-xs">Edit</button></div>
+            <div class="card-body">
+              <div class="info-grid">
+                <div class="info-item"><div class="info-lbl">Legal Name</div><div class="info-val">Shoprite Nigeria Limited</div></div>
+                <div class="info-item"><div class="info-lbl">Email</div><div class="info-val">admin@shoprite.ng</div></div>
+                <div class="info-item"><div class="info-lbl">Phone</div><div class="info-val">+234 801 *** 5678</div></div>
+                <div class="info-item"><div class="info-lbl">KYC Status</div><div class="info-val"><span class="pill green">Approved</span></div></div>
+                <div class="info-item"><div class="info-lbl">Settlement Account</div><div class="info-val mono">0123456789 · GTBank</div></div>
+                <div class="info-item"><div class="info-lbl">Daily Transfer Limit</div><div class="info-val">₦10,000,000</div></div>
+                <div class="info-item"><div class="info-lbl">Tier</div><div class="info-val"><span class="pill purple">Tier 2</span></div></div>
+                <div class="info-item"><div class="info-lbl">Business Category</div><div class="info-val">Retail — Supermarket</div></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><h3>Recent Transactions</h3><a onclick="showScreen('transactions',null,'Transactions')" style="font-size:12.5px;color:var(--primary);font-weight:600;cursor:pointer;">View all →</a></div>
+            <div class="tbl-wrap">
+              <table>
+                <thead><tr><th>Date</th><th>Reference</th><th>Amount</th><th>Type</th><th>Status</th></tr></thead>
+                <tbody>
+                  <tr><td style="color:var(--text-secondary);font-size:12px;">Feb 24, 11:41</td><td><span class="mono">TXN-2024-10021</span></td><td style="font-weight:700;color:var(--green);">+₦450,000</td><td style="color:var(--text-secondary);">Payment</td><td><span class="pill green">Successful</span></td></tr>
+                  <tr><td style="color:var(--text-secondary);font-size:12px;">Feb 24, 09:15</td><td><span class="mono">TXN-2024-10009</span></td><td style="font-weight:700;color:var(--red);">−₦120,000</td><td style="color:var(--text-secondary);">Transfer</td><td><span class="pill green">Successful</span></td></tr>
+                  <tr><td style="color:var(--text-secondary);font-size:12px;">Feb 23, 16:30</td><td><span class="mono">TXN-2024-09987</span></td><td style="font-weight:700;color:var(--green);">+₦890,000</td><td style="color:var(--text-secondary);">Payment</td><td><span class="pill amber">Pending</span></td></tr>
+                  <tr><td style="color:var(--text-secondary);font-size:12px;">Feb 23, 14:02</td><td><span class="mono">TXN-2024-09955</span></td><td style="font-weight:700;color:var(--red);">−₦60,000</td><td style="color:var(--text-secondary);">Withdrawal</td><td><span class="pill green">Successful</span></td></tr>
+                  <tr><td style="color:var(--text-secondary);font-size:12px;">Feb 22, 10:18</td><td><span class="mono">TXN-2024-09901</span></td><td style="font-weight:700;color:var(--green);">+₦2,100,000</td><td style="color:var(--text-secondary);">Settlement</td><td><span class="pill green">Successful</span></td></tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right panel -->
+        <div class="right-panel">
+          <div class="card">
+            <div class="card-hdr"><h3>Admin Actions</h3></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
+              <!-- Tier upgrade — Compliance, Operations, Super Admin -->
+              <button class="btn btn-ghost" style="justify-content:flex-start;width:100%;" data-roles="super_admin,compliance,finance" onclick="showModal('tierModal')">🔼 Upgrade Tier</button>
+              <!-- Reset PIN — CS, Operations, Super Admin -->
+              <button class="btn btn-ghost" style="justify-content:flex-start;width:100%;" data-roles="super_admin,finance,cs" onclick="showToast('PIN reset link sent to merchant ✓')">🔑 Reset PIN</button>
+              <!-- Adjust Limit — Finance, Super Admin -->
+              <button class="btn btn-ghost" style="justify-content:flex-start;width:100%;" data-roles="super_admin,finance" onclick="showToast('Limit adjustment — use Settings > Limits')">🔧 Adjust Limit</button>
+              <!-- Add Note — all roles -->
+              <button class="btn btn-ghost" style="justify-content:flex-start;width:100%;" data-roles="super_admin,compliance,finance,cs,product" onclick="showModal('noteModal')">📝 Add Note</button>
+              <div style="height:1px;background:var(--border-light);margin:4px 0;" data-roles="super_admin,compliance,finance"></div>
+              <!-- Destructive — Compliance, Operations, Super Admin only -->
+              <button class="btn btn-danger" style="justify-content:flex-start;width:100%;" data-roles="super_admin,compliance,finance" onclick="showModal('suspendModal')">🚫 Suspend Account</button>
+              <button class="btn btn-danger" style="justify-content:flex-start;width:100%;" data-roles="super_admin,compliance,finance" onclick="showModal('flagModal')">🚩 Flag as Fraudulent</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><h3>Audit Trail</h3></div>
+            <div class="card-body" style="padding:0 16px;">
+              <div class="timeline">
+                <div class="tl-item">
+                  <div class="tl-dot green">✓</div>
+                  <div class="tl-body">
+                    <div class="tl-action">KYC Approved</div>
+                    <div class="tl-meta">Amara O. · Feb 12, 2025 · "All docs verified"</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot amber">↩</div>
+                  <div class="tl-body">
+                    <div class="tl-action">KYC Returned</div>
+                    <div class="tl-meta">Tunde B. · Feb 10, 2025 · "Utility bill unclear"</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot purple">🔼</div>
+                  <div class="tl-body">
+                    <div class="tl-action">Tier Upgraded → Tier 2</div>
+                    <div class="tl-meta">Efe O. · Feb 14, 2025</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot grey">📝</div>
+                  <div class="tl-body">
+                    <div class="tl-action">Note Added</div>
+                    <div class="tl-meta">Kemi A. · Feb 20, 2025 · "High volume merchant, flagged for monitoring"</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /biz-detail -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN: KYC QUEUE
+    ════════════════════════════════ -->
+    <div class="screen" id="screen-kyc-queue">
+      <div class="page-hdr">
+        <div><h1>KYC / Onboarding</h1><p>Review and action pending merchant applications</p></div>
+      </div>
+
+      <div class="kpi-row cols-4" style="margin-bottom:18px;">
+        <div class="kpi-card"><div class="kpi-lbl">Awaiting Review</div><div class="kpi-val">6</div><div class="kpi-badge neutral">2 high risk</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">Info Requested</div><div class="kpi-val">2</div><div class="kpi-badge purple">Oldest 5 days</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">Approved Today</div><div class="kpi-val">7</div><div class="kpi-badge up">↑ +3 vs yesterday</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">Rejected Today</div><div class="kpi-val">1</div><div class="kpi-sub"></div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <div class="filter-chips" style="margin:0;">
+            <div class="chip" onclick="setChip(this)">All <span class="chip-count">8</span></div>
+            <div class="chip active" style="background:var(--red-light);color:var(--red-text);border-color:#FCA5A5;" onclick="setChip(this)">High Risk <span class="chip-count">2</span></div>
+            <div class="chip" onclick="setChip(this)">Medium <span class="chip-count">3</span></div>
+            <div class="chip" onclick="setChip(this)">Low Risk <span class="chip-count">3</span></div>
+          </div>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Business</th>
+              <th>Email</th>
+              <th>Submitted</th>
+              <th>Assignee</th>
+              <th>Documents</th>
+              <th>Risk</th>
+              <th>Status</th>
+              <th></th>
+            </tr></thead>
+            <tbody>
+              <tr onclick="showScreen('kyc-detail',null,'KYC Review — MedPlus Holdings')">
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="av av-sm" style="background:#EFF6FF;color:#1E40AF;">MH</div><div><div style="font-weight:600;">MedPlus Holdings</div><div class="mono">MRC-00329</div></div></div></td>
+                <td style="color:var(--text-secondary);">accounts@medplus.ng</td>
+                <td style="color:var(--text-secondary);">Feb 21, 2025</td>
+                <td><div class="assignee-chip"><div class="ac-av">AO</div>Amara O.</div></td>
+                <td><span style="font-size:12.5px;font-weight:600;color:var(--green-text);">5 / 5</span></td>
+                <td><span class="risk high">High</span></td>
+                <td><span class="pill amber">Awaiting Review</span></td>
+                <td><button class="btn btn-primary btn-xs" onclick="event.stopPropagation();showScreen('kyc-detail',null,'KYC Review — MedPlus Holdings')">Review →</button></td>
+              </tr>
+              <tr onclick="showScreen('kyc-detail',null,'KYC Review — UrbanGrow Farms')">
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="av av-sm av-green">UG</div><div><div style="font-weight:600;">UrbanGrow Farms</div><div class="mono">MRC-00331</div></div></div></td>
+                <td style="color:var(--text-secondary);">ops@urbangrow.ng</td>
+                <td style="color:var(--text-secondary);">Feb 22, 2025</td>
+                <td><div class="unassigned-chip">+ Assign</div></td>
+                <td><span style="font-size:12.5px;font-weight:600;color:var(--red-text);">3 / 5</span></td>
+                <td><span class="risk high">High</span></td>
+                <td><span class="pill amber">Awaiting Review</span></td>
+                <td><button class="btn btn-primary btn-xs" onclick="event.stopPropagation();showScreen('kyc-detail',null,'KYC Review — UrbanGrow Farms')">Review →</button></td>
+              </tr>
+              <tr onclick="showScreen('kyc-detail',null,'KYC Review — Afrocentric Foods')">
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="av av-sm" style="background:#FEF3C7;color:#92400E;">AF</div><div><div style="font-weight:600;">Afrocentric Foods</div><div class="mono">MRC-00318</div></div></div></td>
+                <td style="color:var(--text-secondary);">info@afrocentric.co</td>
+                <td style="color:var(--text-secondary);">Feb 19, 2025</td>
+                <td><div class="assignee-chip"><div class="ac-av">TB</div>Tunde B.</div></td>
+                <td><span style="font-size:12.5px;font-weight:600;color:var(--amber-text);">4 / 5</span></td>
+                <td><span class="risk medium">Medium</span></td>
+                <td><span class="pill blue">Info Requested</span></td>
+                <td><button class="btn btn-ghost btn-xs">Review →</button></td>
+              </tr>
+              <tr>
+                <td><div style="display:flex;align-items:center;gap:10px;"><div class="av av-sm av-purple">CL</div><div><div style="font-weight:600;">ClearLight Logistics</div><div class="mono">MRC-00337</div></div></div></td>
+                <td style="color:var(--text-secondary);">hello@clearlight.ng</td>
+                <td style="color:var(--text-secondary);">Feb 23, 2025</td>
+                <td><div class="assignee-chip"><div class="ac-av">KA</div>Kemi A.</div></td>
+                <td><span style="font-size:12.5px;font-weight:600;color:var(--green-text);">5 / 5</span></td>
+                <td><span class="risk low">Low</span></td>
+                <td><span class="pill amber">Awaiting Review</span></td>
+                <td><button class="btn btn-primary btn-xs">Review →</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /kyc-queue -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN: KYC DETAIL
+    ════════════════════════════════ -->
+    <div class="screen" id="screen-kyc-detail">
+      <div class="back-link" onclick="showScreen('kyc-queue',null,'KYC / Onboarding')">← Back to KYC Queue</div>
+
+      <div class="detail-hdr" style="margin-bottom:18px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap;">
+          <div style="display:flex;align-items:center;gap:14px;min-width:0;">
+            <div class="av av-lg" style="background:#EFF6FF;color:#1E40AF;flex-shrink:0;">MH</div>
+            <div style="min-width:0;">
+              <div class="biz-name">MedPlus Holdings</div>
+              <div class="detail-hdr-meta">
+                <span class="mono" style="font-size:12px;color:var(--text-muted);">KYC-2025-00329</span>
+                <span class="pill amber">Awaiting Review</span>
+                <span class="risk high">High Risk</span>
+                <span style="font-size:12px;color:var(--text-muted);">Submitted Feb 21, 2025</span>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;gap:8px;flex-shrink:0;flex-wrap:wrap;">
+            <button class="btn btn-ghost btn-sm" onclick="showModal('returnModal')">↩ Return KYC</button>
+            <button class="btn btn-danger btn-sm" onclick="showModal('rejectModal')">✕ Reject</button>
+            <button class="btn btn-success btn-sm" onclick="showModal('approveModal')">✓ Approve</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="three-col">
+        <!-- Left: tabs content -->
+        <div style="grid-column:1/3;">
+          <div class="tabs">
+            <div class="tab active" onclick="switchKycTab(this,'kyc-overview')">Business Overview</div>
+            <div class="tab" onclick="switchKycTab(this,'kyc-directors')">Directors</div>
+            <div class="tab" onclick="switchKycTab(this,'kyc-shareholders')">Shareholders</div>
+            <div class="tab" onclick="switchKycTab(this,'kyc-documents')">Documents</div>
+            <div class="tab" onclick="switchKycTab(this,'kyc-feedback')">Feedback</div>
+          </div>
+
+          <!-- Tab: Business Overview -->
+          <div id="kyc-overview" class="kyc-tab card" style="padding:20px;">
+            <div class="info-grid" style="grid-template-columns:repeat(auto-fill,minmax(180px,1fr));">
+              <div class="info-item"><div class="info-lbl">Business Name</div><div class="info-val">MedPlus Holdings Ltd</div></div>
+              <div class="info-item"><div class="info-lbl">Business Type</div><div class="info-val">Private Limited Company</div></div>
+              <div class="info-item"><div class="info-lbl">RC Number</div><div class="info-val mono">RC-1289340</div></div>
+              <div class="info-item"><div class="info-lbl">TIN</div>
+                <div class="info-val" style="display:flex;align-items:center;gap:8px;">
+                  <span class="mono">04912837400</span>
+                  <button class="btn btn-ghost btn-xs">Verify TIN</button>
+                </div>
+              </div>
+              <div class="info-item"><div class="info-lbl">Category</div><div class="info-val">Healthcare — Pharmacy</div></div>
+              <div class="info-item"><div class="info-lbl">Annual Turnover</div><div class="info-val">₦500M – ₦1B</div></div>
+              <div class="info-item" style="grid-column:1/4;"><div class="info-lbl">Registered Address</div><div class="info-val">14 Bourdillon Road, Ikoyi, Lagos State, Nigeria</div></div>
+              <div class="info-item" style="grid-column:1/4;"><div class="info-lbl">Operational Address</div><div class="info-val">Same as registered address</div></div>
+            </div>
+          </div>
+
+          <!-- Tab: Directors -->
+          <div id="kyc-directors" class="kyc-tab card" style="padding:20px;display:none;">
+            <div style="background:var(--bg);border-radius:var(--radius);padding:16px;border:1px solid var(--border-light);">
+              <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px;">
+                <div class="av av-md av-purple">JO</div>
+                <div><div style="font-weight:700;">Dr. James Okonkwo</div><div style="font-size:12px;color:var(--text-muted);">Chief Executive Officer</div></div>
+              </div>
+              <div class="info-grid">
+                <div class="info-item"><div class="info-lbl">BVN</div><div class="info-val mono">221 *** *** 81</div></div>
+                <div class="info-item"><div class="info-lbl">NIN</div><div class="info-val mono">391 *** *** 40</div></div>
+                <div class="info-item"><div class="info-lbl">Phone</div><div class="info-val">+234 803 *** 4421</div></div>
+                <div class="info-item"><div class="info-lbl">Email</div><div class="info-val">j.okonkwo@medplus.ng</div></div>
+                <div class="info-item"><div class="info-lbl">ID Type</div><div class="info-val">International Passport</div></div>
+                <div class="info-item"><div class="info-lbl">Date of Birth</div><div class="info-val">Mar 14, 1972</div></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Shareholders -->
+          <div id="kyc-shareholders" class="kyc-tab card" style="padding:20px;display:none;">
+            <table>
+              <thead><tr><th>Name</th><th>Nationality</th><th>% Holding</th></tr></thead>
+              <tbody>
+                <tr><td style="font-weight:600;">Dr. James Okonkwo</td><td style="color:var(--text-secondary);">Nigerian</td><td style="font-weight:700;color:var(--primary);">65%</td></tr>
+                <tr><td style="font-weight:600;">Adaobi Okonkwo</td><td style="color:var(--text-secondary);">Nigerian</td><td style="font-weight:700;color:var(--primary);">25%</td></tr>
+                <tr><td style="font-weight:600;">Medserve Investments Ltd</td><td style="color:var(--text-secondary);">Nigerian (Company)</td><td style="font-weight:700;color:var(--primary);">10%</td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- Tab: Documents -->
+          <div id="kyc-documents" class="kyc-tab card" style="padding:20px;display:none;">
+            <div class="doc-grid">
+              <div class="doc-card">
+                <div class="doc-ico">📄</div>
+                <div class="doc-name">CAC Certificate</div>
+                <div class="doc-meta">cac_cert.pdf · 2.1 MB · Feb 21</div>
+                <div style="margin-top:8px;"><span class="pill green" style="font-size:10.5px;">Verified</span></div>
+              </div>
+              <div class="doc-card">
+                <div class="doc-ico">📋</div>
+                <div class="doc-name">MEMART</div>
+                <div class="doc-meta">memart.pdf · 4.8 MB · Feb 21</div>
+                <div style="margin-top:8px;"><span class="pill amber" style="font-size:10.5px;">Under Review</span></div>
+              </div>
+              <div class="doc-card">
+                <div class="doc-ico">🪪</div>
+                <div class="doc-name">Director ID</div>
+                <div class="doc-meta">passport_jko.pdf · 1.4 MB · Feb 21</div>
+                <div style="margin-top:8px;"><span class="pill green" style="font-size:10.5px;">Verified</span></div>
+              </div>
+              <div class="doc-card">
+                <div class="doc-ico">🏦</div>
+                <div class="doc-name">Bank Statement (6 months)</div>
+                <div class="doc-meta">bank_stmt.pdf · 6.2 MB · Feb 21</div>
+                <div style="margin-top:8px;"><span class="pill green" style="font-size:10.5px;">Verified</span></div>
+              </div>
+              <div class="doc-card" style="border-color:var(--red);background:var(--red-light);">
+                <div class="doc-ico">📃</div>
+                <div class="doc-name">Utility Bill</div>
+                <div class="doc-meta">Not uploaded</div>
+                <div style="margin-top:8px;"><span class="pill red" style="font-size:10.5px;">Missing</span></div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Tab: Feedback -->
+          <div id="kyc-feedback" class="kyc-tab card" style="padding:20px;display:none;">
+            <div class="timeline">
+              <div class="tl-item">
+                <div class="tl-dot amber">↩</div>
+                <div class="tl-body">
+                  <div class="tl-action">Info Requested — Feb 15, 2025</div>
+                  <div class="tl-meta" style="background:var(--amber-light);padding:8px 12px;border-radius:8px;margin-top:6px;">
+                    "Please provide a clear copy of the utility bill and re-upload the MEMART with all pages visible."
+                  </div>
+                </div>
+              </div>
+              <div class="tl-item">
+                <div class="tl-dot blue">💬</div>
+                <div class="tl-body">
+                  <div class="tl-action">Merchant Response — Feb 18, 2025</div>
+                  <div class="tl-meta" style="background:var(--blue-light);padding:8px 12px;border-radius:8px;margin-top:6px;">
+                    "Documents have been re-uploaded. Utility bill in the name of the director has been included."
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right: risk + notes -->
+        <div class="right-panel">
+          <div class="card">
+            <div class="card-hdr"><h3>Risk Assessment</h3><span class="risk high">72 / 100</span></div>
+            <div class="card-body">
+              <div class="risk-meter">
+                <div style="display:flex;justify-content:space-between;font-size:11px;color:var(--text-muted);font-weight:600;">
+                  <span>Risk Score</span><span style="color:var(--red-text);font-weight:800;">72 — High</span>
+                </div>
+                <div class="risk-bar"><div class="risk-fill high" style="width:72%;"></div></div>
+              </div>
+              <div class="risk-checks">
+                <div class="risk-check"><span class="check-name">BVN Match</span><span class="rc-pass">Pass</span></div>
+                <div class="risk-check"><span class="check-name">NIN Match</span><span class="rc-pass">Pass</span></div>
+                <div class="risk-check"><span class="check-name">CAC Status</span><span class="rc-pass">Active</span></div>
+                <!-- PEP Check — editable by Compliance + Super Admin -->
+                <div class="risk-check" id="pep-check-row">
+                  <span class="check-name">PEP Check</span>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span class="rc-warn" id="pep-badge">Review</span>
+                    <button class="risk-edit-btn" data-roles="super_admin,compliance" onclick="toggleRiskEdit('pep')" title="Edit PEP status">✏</button>
+                  </div>
+                </div>
+                <div id="pep-edit" style="display:none;padding:6px 0;">
+                  <select id="pep-select" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:'Plus Jakarta Sans',sans-serif;width:100%;" onchange="updateRisk('pep',this.value)">
+                    <option value="review">Review</option>
+                    <option value="pass">Clear — No PEP</option>
+                    <option value="fail">Confirmed PEP</option>
+                  </select>
+                  <input type="text" placeholder="Add note for this change…" style="margin-top:6px;width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;">
+                  <div style="display:flex;gap:6px;margin-top:6px;">
+                    <button class="btn btn-primary btn-xs" onclick="saveRisk('pep')">Save</button>
+                    <button class="btn btn-ghost btn-xs" onclick="toggleRiskEdit('pep')">Cancel</button>
+                  </div>
+                </div>
+                <!-- Sanctions List — editable by Compliance + Super Admin -->
+                <div class="risk-check" id="sanctions-check-row">
+                  <span class="check-name">Sanctions List</span>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span class="rc-pass" id="sanctions-badge">Clear</span>
+                    <button class="risk-edit-btn" data-roles="super_admin,compliance" onclick="toggleRiskEdit('sanctions')" title="Edit Sanctions status">✏</button>
+                  </div>
+                </div>
+                <div id="sanctions-edit" style="display:none;padding:6px 0;">
+                  <select id="sanctions-select" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:'Plus Jakarta Sans',sans-serif;width:100%;" onchange="updateRisk('sanctions',this.value)">
+                    <option value="pass">Clear</option>
+                    <option value="warn">Under Review</option>
+                    <option value="fail">Sanctioned</option>
+                  </select>
+                  <input type="text" placeholder="Add note for this change…" style="margin-top:6px;width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;">
+                  <div style="display:flex;gap:6px;margin-top:6px;">
+                    <button class="btn btn-primary btn-xs" onclick="saveRisk('sanctions')">Save</button>
+                    <button class="btn btn-ghost btn-xs" onclick="toggleRiskEdit('sanctions')">Cancel</button>
+                  </div>
+                </div>
+                <!-- AML Flag — editable by Compliance + Super Admin -->
+                <div class="risk-check" id="aml-check-row">
+                  <span class="check-name">AML Flag</span>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span class="rc-fail" id="aml-badge">Flagged</span>
+                    <button class="risk-edit-btn" data-roles="super_admin,compliance" onclick="toggleRiskEdit('aml')" title="Edit AML status">✏</button>
+                  </div>
+                </div>
+                <div id="aml-edit" style="display:none;padding:6px 0;">
+                  <select id="aml-select" style="font-size:12px;padding:4px 8px;border:1px solid var(--border);border-radius:6px;font-family:'Plus Jakarta Sans',sans-serif;width:100%;" onchange="updateRisk('aml',this.value)">
+                    <option value="fail">Flagged</option>
+                    <option value="warn">Monitoring</option>
+                    <option value="pass">Clear</option>
+                  </select>
+                  <input type="text" placeholder="Reason for status change…" style="margin-top:6px;width:100%;padding:5px 8px;border:1px solid var(--border);border-radius:6px;font-size:12px;font-family:'Plus Jakarta Sans',sans-serif;">
+                  <div style="display:flex;gap:6px;margin-top:6px;">
+                    <button class="btn btn-primary btn-xs" onclick="saveRisk('aml')">Save</button>
+                    <button class="btn btn-ghost btn-xs" onclick="toggleRiskEdit('aml')">Cancel</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><h3>Reviewer Notes</h3></div>
+            <div class="card-body">
+              <div style="font-size:11px;color:var(--text-muted);font-weight:700;text-transform:uppercase;letter-spacing:0.5px;margin-bottom:8px;">Internal (not visible to merchant)</div>
+              <textarea placeholder="Add review notes…">AML flag triggered due to large cash deposits pattern. Requires escalation to MLRO before approval.</textarea>
+              <button class="btn btn-ghost btn-sm" style="margin-top:8px;width:100%;" onclick="showToast('Note saved ✓')">Save Note</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><h3>Activity Log</h3></div>
+            <div class="card-body" style="padding:0 14px;">
+              <div class="timeline">
+                <div class="tl-item"><div class="tl-dot purple">👤</div><div class="tl-body"><div class="tl-action">Assigned to Amara O.</div><div class="tl-meta">Feb 21 · 09:04 AM</div></div></div>
+                <div class="tl-item"><div class="tl-dot grey">👁</div><div class="tl-body"><div class="tl-action">Viewed by Amara O.</div><div class="tl-meta">Feb 21 · 09:12 AM</div></div></div>
+                <div class="tl-item"><div class="tl-dot amber">↩</div><div class="tl-body"><div class="tl-action">Info Requested</div><div class="tl-meta">Amara O. · Feb 21 · 10:30 AM</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /kyc-detail -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN: TRANSACTIONS
+    ════════════════════════════════ -->
+    <div class="screen" id="screen-transactions">
+      <div class="page-hdr">
+        <div><h1>Transactions</h1><p>Global ledger — all merchant transactions</p></div>
+        <div style="display:flex;gap:8px;">
+          <button class="btn btn-ghost btn-sm" onclick="openFilter()">⚙ Filter</button>
+          <button class="btn btn-ghost btn-sm" onclick="showToast('Exporting CSV…')">↓ Export CSV</button>
+        </div>
+      </div>
+
+      <div class="filter-chips">
+        <div class="chip active" onclick="setChip(this)">All</div>
+        <div class="chip" onclick="setChip(this)" style="border-color:#FCA5A5;color:var(--red-text);">Flagged <span class="chip-count">8</span></div>
+        <div class="chip" onclick="setChip(this)">Pending <span class="chip-count">24</span></div>
+        <div class="chip" onclick="setChip(this)">Successful</div>
+        <div class="chip" onclick="setChip(this)">Failed</div>
+      </div>
+
+      <div class="card">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Date & Time</th>
+              <th>Transaction ID</th>
+              <th>Business</th>
+              <th>From</th>
+              <th>Amount</th>
+              <th>To</th>
+              <th>Type</th>
+              <th>Status</th>
+              <th>Flag</th>
+              <th></th>
+            </tr></thead>
+            <tbody>
+              <tr onclick="showScreen('txn-detail',null,'Transaction Detail')">
+                <td style="color:var(--text-secondary);font-size:12px;white-space:nowrap;">Feb 24, 11:41 AM</td>
+                <td><span class="mono">TXN-2024-10021</span></td>
+                <td><span style="font-weight:600;">Shoprite NG</span></td>
+                <td style="color:var(--text-secondary);">Main Wallet</td>
+                <td><span style="font-weight:700;color:var(--green);">+₦450,000</span></td>
+                <td style="color:var(--text-secondary);">Customer A.</td>
+                <td><span style="font-size:12px;color:var(--text-secondary);">Payment</span></td>
+                <td><span class="pill green">Successful</span></td>
+                <td>—</td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+              <tr onclick="showScreen('txn-detail',null,'Transaction Detail')" style="background:#FFFBEB;">
+                <td style="color:var(--text-secondary);font-size:12px;white-space:nowrap;">Feb 24, 10:22 AM</td>
+                <td><span class="mono">TXN-2024-09812</span></td>
+                <td><span style="font-weight:600;">TechHub Lagos</span></td>
+                <td style="color:var(--text-secondary);">Main Wallet</td>
+                <td><span style="font-weight:700;color:var(--red);">−₦2,450,000</span></td>
+                <td style="color:var(--text-secondary);">Ext. Account</td>
+                <td><span style="font-size:12px;color:var(--text-secondary);">Transfer</span></td>
+                <td><span class="pill green">Successful</span></td>
+                <td><span class="risk high" style="font-size:10px;">🚩 High</span></td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+              <tr onclick="showScreen('txn-detail',null,'Transaction Detail')">
+                <td style="color:var(--text-secondary);font-size:12px;white-space:nowrap;">Feb 24, 09:15 AM</td>
+                <td><span class="mono">TXN-2024-09801</span></td>
+                <td><span style="font-weight:600;">MedPlus Holdings</span></td>
+                <td style="color:var(--text-secondary);">Sub Wallet 01</td>
+                <td><span style="font-weight:700;color:var(--green);">+₦890,000</span></td>
+                <td style="color:var(--text-secondary);">Customer B.</td>
+                <td><span style="font-size:12px;color:var(--text-secondary);">Payment</span></td>
+                <td><span class="pill amber">Pending</span></td>
+                <td>—</td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+              <tr onclick="showScreen('txn-detail',null,'Transaction Detail')">
+                <td style="color:var(--text-secondary);font-size:12px;white-space:nowrap;">Feb 23, 16:30 PM</td>
+                <td><span class="mono">TXN-2024-09701</span></td>
+                <td><span style="font-weight:600;">Afrocentric Foods</span></td>
+                <td style="color:var(--text-secondary);">Main Wallet</td>
+                <td><span style="font-weight:700;color:var(--red);">−₦890,000</span></td>
+                <td style="color:var(--text-secondary);">GTBank ···4821</td>
+                <td><span style="font-size:12px;color:var(--text-secondary);">Withdrawal</span></td>
+                <td><span class="pill green">Successful</span></td>
+                <td><span class="risk medium" style="font-size:10px;">🚩 Med</span></td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+              <tr onclick="showScreen('txn-detail',null,'Transaction Detail')">
+                <td style="color:var(--text-secondary);font-size:12px;white-space:nowrap;">Feb 23, 14:02 PM</td>
+                <td><span class="mono">TXN-2024-09688</span></td>
+                <td><span style="font-weight:600;">ClearLight Logistics</span></td>
+                <td style="color:var(--text-secondary);">Main Wallet</td>
+                <td><span style="font-weight:700;color:var(--red);">−₦60,000</span></td>
+                <td style="color:var(--text-secondary);">Zenith ···2291</td>
+                <td><span style="font-size:12px;color:var(--text-secondary);">Transfer</span></td>
+                <td><span class="pill red">Failed</span></td>
+                <td>—</td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div style="display:flex;align-items:center;justify-content:space-between;padding:14px 20px;border-top:1px solid var(--border-light);">
+          <span style="font-size:12.5px;color:var(--text-muted);">Showing 1–20 of 3,291 transactions today</span>
+          <div style="display:flex;gap:6px;">
+            <button class="btn btn-ghost btn-xs">← Prev</button>
+            <button class="btn btn-ghost btn-xs" style="background:var(--primary);color:white;border-color:var(--primary);">1</button>
+            <button class="btn btn-ghost btn-xs">2</button>
+            <button class="btn btn-ghost btn-xs">3</button>
+            <button class="btn btn-ghost btn-xs">Next →</button>
+          </div>
+        </div>
+      </div>
+    </div><!-- /transactions -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN: TRANSACTION DETAIL
+    ════════════════════════════════ -->
+    <div class="screen" id="screen-txn-detail">
+      <div class="back-link" onclick="showScreen('transactions',null,'Transactions')">← Back to Transactions</div>
+
+      <div class="detail-hdr" style="margin-bottom:18px;">
+        <div style="display:flex;align-items:center;gap:14px;">
+          <div class="av av-lg" style="background:var(--red-light);color:var(--red-text);font-size:16px;">↕️</div>
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+              <div style="font-size:20px;font-weight:800;">TXN-2024-09812</div>
+              <span class="pill green">Successful</span>
+              <span class="risk high" style="font-size:11px;">🚩 Flagged — High</span>
+            </div>
+            <div style="font-size:13px;color:var(--text-muted);">Transfer · TechHub Lagos · Feb 24, 2025 · 10:22 AM</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="two-col">
+        <!-- Left: transaction details -->
+        <div style="display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="card-hdr"><h3>Transaction Details</h3></div>
+            <div class="card-body">
+              <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:20px;">
+                <div class="info-item"><div class="info-lbl">Transaction ID</div><div class="info-val mono">TXN-2024-09812</div></div>
+                <div class="info-item"><div class="info-lbl">Account Type</div><div class="info-val">Main Wallet</div></div>
+                <div class="info-item"><div class="info-lbl">Account Name</div><div class="info-val">TechHub Lagos</div></div>
+                <div class="info-item"><div class="info-lbl">Account Number</div><div class="info-val mono">0123456789</div></div>
+                <div class="info-item"><div class="info-lbl">Bank Name</div><div class="info-val">GTBank</div></div>
+                <div class="info-item"><div class="info-lbl">Destination Account</div><div class="info-val mono">9876543210 · Access</div></div>
+                <div class="info-item"><div class="info-lbl">Amount</div><div class="info-val" style="font-size:22px;font-weight:800;color:var(--red);">−₦2,450,000</div></div>
+                <div class="info-item"><div class="info-lbl">Transaction Type</div><div class="info-val">Transfer</div></div>
+                <div class="info-item"><div class="info-lbl">Category</div><div class="info-val">External Transfer</div></div>
+                <div class="info-item"><div class="info-lbl">Date & Time</div><div class="info-val">Feb 24, 2025 · 10:22 AM</div></div>
+                <div class="info-item"><div class="info-lbl">Business</div><div class="info-val" style="color:var(--primary);cursor:pointer;" onclick="showScreen('biz-detail',null,'TechHub Lagos')">TechHub Lagos →</div></div>
+                <div class="info-item"><div class="info-lbl">Description</div><div class="info-val">Supplier payment — Feb batch</div></div>
+                <div class="info-item"><div class="info-lbl">Provider Reference</div><div class="info-val mono">PRV-2024-003918281</div></div>
+                <div class="info-item"><div class="info-lbl">Peer Reference</div><div class="info-val mono">PER-2024-009812</div></div>
+                <div class="info-item"><div class="info-lbl">Session ID</div><div class="info-val mono">SES-1293847561023</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Right panel: actions + audit trail (matches merchant detail pattern) -->
+        <div class="right-panel">
+          <!-- Admin Actions — role-gated -->
+          <div class="card">
+            <div class="card-hdr"><h3>Admin Actions</h3></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:8px;">
+              <!-- Print Receipt — CS, Operations, Finance, Super Admin -->
+              <button class="btn btn-ghost" style="justify-content:flex-start;width:100%;" data-roles="super_admin,finance,cs" onclick="showToast('Generating receipt PDF…')">🖨 Print Receipt</button>
+              <!-- Flag — Operations, Compliance, Super Admin -->
+              <button class="btn btn-ghost" style="justify-content:flex-start;width:100%;" data-roles="super_admin,compliance,finance" onclick="showModal('flagModal')">🚩 Flag Transaction</button>
+              <!-- Unflag — Operations, Compliance, Super Admin -->
+              <button class="btn btn-ghost" style="justify-content:flex-start;width:100%;color:var(--amber-text);border-color:var(--amber-light);" data-roles="super_admin,compliance,finance" onclick="showToast('Flag removed ✓')">⚑ Remove Flag</button>
+              <div style="height:1px;background:var(--border-light);margin:4px 0;" data-roles="super_admin,finance"></div>
+              <!-- Reverse — Finance, Super Admin only -->
+              <button class="btn btn-danger" style="justify-content:flex-start;width:100%;" data-roles="super_admin,finance" onclick="showModal('reverseModal')">↩ Reverse Transaction</button>
+              <!-- Raise Dispute — CS -->
+              <button class="btn btn-ghost" style="justify-content:flex-start;width:100%;" data-roles="super_admin,cs" onclick="showScreen('disputes',null,'Disputes')">⚡ Raise Dispute</button>
+            </div>
+          </div>
+
+          <!-- Audit Trail -->
+          <div class="card">
+            <div class="card-hdr"><h3>Audit Trail</h3></div>
+            <div class="card-body" style="padding:0 16px;">
+              <div class="timeline">
+                <div class="tl-item">
+                  <div class="tl-dot red">🚩</div>
+                  <div class="tl-body">
+                    <div class="tl-action">Flagged as High Risk</div>
+                    <div class="tl-meta">Kemi A. · Operations · Today 10:45 AM</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot green">✓</div>
+                  <div class="tl-body">
+                    <div class="tl-action">Transaction Completed</div>
+                    <div class="tl-meta">System · Today 10:22 AM</div>
+                  </div>
+                </div>
+                <div class="tl-item">
+                  <div class="tl-dot grey">⚙</div>
+                  <div class="tl-body">
+                    <div class="tl-action">Transaction Initiated</div>
+                    <div class="tl-meta">Merchant · Today 10:21 AM</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /txn-detail -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN: DISPUTES
+    ════════════════════════════════ -->
+    <div class="screen" id="screen-disputes">
+      <div class="page-hdr">
+        <div><h1>Disputes</h1><p>Active dispute queue across all merchants</p></div>
+      </div>
+
+      <div class="kpi-row cols-4" style="margin-bottom:18px;">
+        <div class="kpi-card"><div class="kpi-lbl">Open</div><div class="kpi-val">5</div><div class="kpi-badge neutral">3 approaching SLA</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">Escalated</div><div class="kpi-val">2</div><div class="kpi-badge down">Needs attention</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">In Progress</div><div class="kpi-val">3</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">Resolved Today</div><div class="kpi-val">4</div><div class="kpi-badge up">↑ +2 vs yesterday</div></div>
+      </div>
+
+      <div class="filter-chips">
+        <div class="chip active" onclick="setChip(this)">All <span class="chip-count">10</span></div>
+        <div class="chip" onclick="setChip(this)">Open</div>
+        <div class="chip" onclick="setChip(this)" style="border-color:#FCA5A5;color:var(--red-text);">Escalated</div>
+        <div class="chip" onclick="setChip(this)">Unassigned</div>
+        <div class="chip" onclick="setChip(this)">In Progress</div>
+      </div>
+
+      <div class="card">
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Dispute ID</th>
+              <th>Merchant</th>
+              <th>Amount</th>
+              <th>Type</th>
+              <th>Opened</th>
+              <th>Priority</th>
+              <th>Assigned To</th>
+              <th>Status</th>
+              <th></th>
+            </tr></thead>
+            <tbody>
+              <tr onclick="showScreen('dispute-detail',null,'Dispute DIS-2025-00041')">
+                <td><span class="mono">DIS-2025-00041</span></td>
+                <td style="font-weight:600;">MedPlus Holdings</td>
+                <td style="font-weight:700;">₦450,000</td>
+                <td style="color:var(--text-secondary);">Unauthorized Transfer</td>
+                <td><div style="font-size:12px;color:var(--text-secondary);">Feb 22</div><div class="sla-late">⏰ 2h overdue</div></td>
+                <td><span class="risk high">High</span></td>
+                <td><div class="assignee-chip"><div class="ac-av">CO</div>Chidi O.</div></td>
+                <td><span class="pill red">Escalated</span></td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+              <tr onclick="showScreen('dispute-detail',null,'Dispute DIS-2025-00038')">
+                <td><span class="mono">DIS-2025-00038</span></td>
+                <td style="font-weight:600;">Shoprite NG</td>
+                <td style="font-weight:700;">₦120,000</td>
+                <td style="color:var(--text-secondary);">Incorrect Charge</td>
+                <td><div style="font-size:12px;color:var(--text-secondary);">Feb 23</div><div class="sla-warn">⏱ 6h remaining</div></td>
+                <td><span class="risk medium">Medium</span></td>
+                <td><div class="assignee-chip"><div class="ac-av">KA</div>Kemi A.</div></td>
+                <td><span class="pill amber">In Progress</span></td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+              <tr onclick="showScreen('dispute-detail',null,'Dispute DIS-2025-00035')">
+                <td><span class="mono">DIS-2025-00035</span></td>
+                <td style="font-weight:600;">ClearLight Logistics</td>
+                <td style="font-weight:700;">₦60,000</td>
+                <td style="color:var(--text-secondary);">Payment Not Received</td>
+                <td><div style="font-size:12px;color:var(--text-secondary);">Feb 23</div><div class="sla-ok">✓ 14h remaining</div></td>
+                <td><span class="risk low">Low</span></td>
+                <td><div class="unassigned-chip">+ Assign</div></td>
+                <td><span class="pill amber">Open</span></td>
+                <td><button class="tbl-action-btn">···</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /disputes -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN: DISPUTE DETAIL
+    ════════════════════════════════ -->
+    <div class="screen" id="screen-dispute-detail">
+      <div class="back-link" onclick="showScreen('disputes',null,'Disputes')">← Back to Disputes</div>
+
+      <div class="detail-hdr" style="margin-bottom:18px;">
+        <div style="display:flex;align-items:center;justify-content:space-between;">
+          <div>
+            <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+              <div style="font-size:20px;font-weight:800;">DIS-2025-00041</div>
+              <span class="pill red">Escalated</span>
+              <span class="risk high">High Priority</span>
+            </div>
+            <div style="font-size:13px;color:var(--text-muted);">Unauthorized Transfer · MedPlus Holdings · Opened Feb 22, 2025</div>
+          </div>
+          <div style="display:flex;gap:8px;">
+            <button class="btn btn-ghost btn-sm" onclick="showModal('assignModal')">👤 Assign</button>
+            <button class="btn btn-ghost btn-sm" onclick="showModal('escalateModal')">⬆ Escalate</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="banner red">
+        <span>⚠️</span>
+        <div><strong>Escalation Note:</strong> Customer claims funds were transferred without consent. Pattern consistent with account takeover. Flagged to fraud team Feb 23.</div>
+      </div>
+
+      <div class="two-col" style="grid-template-columns:1fr 300px;">
+        <div>
+          <div class="dispute-sides">
+            <div class="dispute-side merchant-side">
+              <h4>Merchant Account</h4>
+              <div class="info-item" style="margin-bottom:10px;"><div class="info-lbl">Business</div><div class="info-val">MedPlus Holdings</div></div>
+              <div class="info-item" style="margin-bottom:10px;"><div class="info-lbl">Wallet</div><div class="info-val mono">WLT-MED-001</div></div>
+              <div class="info-item" style="margin-bottom:10px;"><div class="info-lbl">Transaction</div><div class="info-val mono">TXN-2024-09812</div></div>
+              <div class="info-item" style="margin-bottom:10px;"><div class="info-lbl">Amount</div><div class="info-val" style="font-weight:800;color:var(--red);">₦450,000</div></div>
+              <div class="info-item"><div class="info-lbl">Merchant Claim</div><div class="info-val" style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">"Transaction was processed correctly as per customer instruction. Receipt provided."</div></div>
+            </div>
+            <div class="dispute-side customer-side">
+              <h4>Customer Account</h4>
+              <div class="info-item" style="margin-bottom:10px;"><div class="info-lbl">Customer</div><div class="info-val">Adaeze Nwosu</div></div>
+              <div class="info-item" style="margin-bottom:10px;"><div class="info-lbl">Account</div><div class="info-val mono">0198765432</div></div>
+              <div class="info-item" style="margin-bottom:10px;"><div class="info-lbl">Reference</div><div class="info-val mono">TXN-2024-09812</div></div>
+              <div class="info-item" style="margin-bottom:10px;"><div class="info-lbl">Amount</div><div class="info-val" style="font-weight:800;color:var(--red);">₦450,000</div></div>
+              <div class="info-item"><div class="info-lbl">Customer Claim</div><div class="info-val" style="font-size:12.5px;color:var(--text-secondary);line-height:1.6;">"I did not authorize this transfer. My account was accessed without my knowledge."</div></div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><h3>Resolution</h3></div>
+            <div class="card-body">
+              <div style="font-size:13px;color:var(--text-secondary);margin-bottom:16px;line-height:1.6;">Select a resolution based on the evidence. All decisions are final and logged to the audit trail.</div>
+              <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                <button class="btn btn-ghost btn-sm" style="border-color:var(--primary);color:var(--primary);" onclick="showModal('resolveMerchantModal')">✓ Favour Merchant (Keep transaction)</button>
+                <button class="btn btn-danger btn-sm" onclick="showModal('resolveCustomerModal')">↩ Favour Customer (Reverse transaction)</button>
+                <button class="btn btn-ghost btn-sm" onclick="showModal('escalateModal')">⬆ Escalate Further</button>
+                <button class="btn btn-ghost btn-sm">✕ Close as Invalid</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="right-panel">
+          <div class="card">
+            <div class="card-hdr"><h3>SLA</h3></div>
+            <div class="card-body">
+              <div class="sla-late" style="font-size:18px;font-weight:800;margin-bottom:4px;">2h overdue</div>
+              <div style="font-size:12px;color:var(--text-secondary);">Target: 48h · Opened 50h ago</div>
+              <div style="margin-top:10px;height:6px;background:var(--bg);border-radius:100px;overflow:hidden;">
+                <div style="width:104%;height:100%;background:var(--red);border-radius:100px;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><h3>Case Activity</h3></div>
+            <div class="card-body" style="padding:0 14px;">
+              <div class="timeline">
+                <div class="tl-item"><div class="tl-dot amber">⚡</div><div class="tl-body"><div class="tl-action">Dispute Opened</div><div class="tl-meta">Feb 22 · 14:30</div></div></div>
+                <div class="tl-item"><div class="tl-dot purple">👤</div><div class="tl-body"><div class="tl-action">Assigned to Chidi O.</div><div class="tl-meta">Feb 22 · 14:45</div></div></div>
+                <div class="tl-item"><div class="tl-dot red">⬆</div><div class="tl-body"><div class="tl-action">Escalated to Fraud Team</div><div class="tl-meta">Chidi O. · Feb 23 · 09:00</div></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /dispute-detail -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN: SETTLEMENTS
+    ════════════════════════════════ -->
+    <div class="screen" id="screen-settlements">
+      <div class="page-hdr">
+        <div><h1>Settlements</h1><p>Manage settlement runs and reconciliation</p></div>
+        <button class="btn btn-primary btn-sm" onclick="showModal('forceSettleModal')">⚡ Force Settle</button>
+      </div>
+
+      <div class="kpi-row cols-4" style="margin-bottom:18px;">
+        <div class="kpi-card"><div class="kpi-lbl">Settled Today</div><div class="kpi-val">₦18.4M</div><div class="kpi-sub"><strong>112</strong> merchants</div><div class="kpi-badge up">↑ +8% vs yesterday</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">Pending Settlement</div><div class="kpi-val">₦6.2M</div><div class="kpi-sub">Next run: <strong>6:00 PM</strong></div></div>
+        <div class="kpi-card"><div class="kpi-lbl">On Hold</div><div class="kpi-val">₦1.1M</div><div class="kpi-sub"><strong>4</strong> merchants on hold</div><div class="kpi-badge neutral">Review required</div></div>
+        <div class="kpi-card"><div class="kpi-lbl">Settlement Rate (30d)</div><div class="kpi-val">98.4%</div><div class="kpi-badge up">↑ Above target</div></div>
+      </div>
+
+      <div class="card">
+        <div class="card-hdr">
+          <h3>Settlement Runs</h3>
+          <button class="btn btn-ghost btn-xs" onclick="showToast('Exporting audit log…')">↓ Export Audit Log</button>
+        </div>
+        <div class="tbl-wrap">
+          <table>
+            <thead><tr>
+              <th>Run ID</th>
+              <th>Merchant</th>
+              <th>Bank Account</th>
+              <th>Amount</th>
+              <th>Initiated</th>
+              <th>Status</th>
+              <th></th>
+            </tr></thead>
+            <tbody>
+              <tr>
+                <td><span class="mono">SET-2025-00412</span></td>
+                <td style="font-weight:600;">Shoprite NG Ltd</td>
+                <td><span class="mono">GTBank ···5678</span></td>
+                <td style="font-weight:700;">₦2,100,000</td>
+                <td style="color:var(--text-secondary);font-size:12px;">Feb 24 · 06:00 AM</td>
+                <td><span class="pill green">Settled</span></td>
+                <td><button class="btn btn-ghost btn-xs">View</button></td>
+              </tr>
+              <tr>
+                <td><span class="mono">SET-2025-00411</span></td>
+                <td style="font-weight:600;">MedPlus Holdings</td>
+                <td><span class="mono">Access ···3311</span></td>
+                <td style="font-weight:700;">₦890,000</td>
+                <td style="color:var(--text-secondary);font-size:12px;">Feb 24 · 06:00 AM</td>
+                <td><span class="pill amber">On Hold</span></td>
+                <td><button class="btn btn-success btn-xs" onclick="showToast('Hold released ✓')">Release Hold</button></td>
+              </tr>
+              <tr>
+                <td><span class="mono">SET-2025-00410</span></td>
+                <td style="font-weight:600;">ClearLight Logistics</td>
+                <td><span class="mono">Zenith ···2291</span></td>
+                <td style="font-weight:700;">₦450,000</td>
+                <td style="color:var(--text-secondary);font-size:12px;">Feb 23 · 06:00 AM</td>
+                <td><span class="pill green">Settled</span></td>
+                <td><button class="btn btn-ghost btn-xs">View</button></td>
+              </tr>
+              <tr>
+                <td><span class="mono">SET-2025-00409</span></td>
+                <td style="font-weight:600;">Afrocentric Foods</td>
+                <td><span class="mono">GTBank ···9901</span></td>
+                <td style="font-weight:700;">₦320,000</td>
+                <td style="color:var(--text-secondary);font-size:12px;">Feb 23 · 06:00 AM</td>
+                <td><span class="pill amber">Pending</span></td>
+                <td><button class="btn btn-ghost btn-xs">View</button></td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div><!-- /settlements -->
+
+
+    <!-- ════════════════════════════════
+         SCREEN: SETTINGS
+    ════════════════════════════════ -->
+    <div class="screen" id="screen-settings">
+      <div class="page-hdr">
+        <div><h1>Settings</h1><p>Manage your account, team, and security</p></div>
+      </div>
+
+      <div class="tabs">
+        <div class="tab active" onclick="switchSettingsTab(this,'settings-profile')">Admin Profile</div>
+        <div class="tab" onclick="switchSettingsTab(this,'settings-roles')">Roles & Permissions</div>
+        <div class="tab" onclick="switchSettingsTab(this,'settings-security')">Security</div>
+      </div>
+
+      <!-- Profile tab -->
+      <div id="settings-profile" class="settings-tab">
+        <div style="max-width:560px;">
+          <div class="card">
+            <div class="card-hdr"><h3>Admin Profile</h3></div>
+            <div class="card-body">
+              <div style="display:flex;align-items:center;gap:16px;margin-bottom:22px;padding-bottom:18px;border-bottom:1px solid var(--border-light);">
+                <div class="av av-lg" style="background:var(--primary);color:white;font-size:18px;font-weight:800;">EO</div>
+                <div>
+                  <div style="font-size:15px;font-weight:700;">Efe Ogufere</div>
+                  <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">Super Admin</div>
+                </div>
+                <button class="btn btn-ghost btn-sm" style="margin-left:auto;">Change Photo</button>
+              </div>
+              <div style="display:grid;gap:14px;">
+                <div><label style="display:block;font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Full Name</label>
+                  <input type="text" value="Efe Ogufere" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"></div>
+                <div><label style="display:block;font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Email Address</label>
+                  <input type="text" value="efe@piggyvest.com" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"></div>
+                <button class="btn btn-primary btn-sm" style="width:fit-content;" onclick="showToast('Profile saved ✓')">Save Changes</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Roles tab -->
+      <div id="settings-roles" class="settings-tab" style="display:none;">
+        <div style="max-width:700px;display:flex;flex-direction:column;gap:12px;">
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border-light)'">
+            <div class="card-body" style="display:flex;align-items:center;gap:14px;">
+              <div style="width:40px;height:40px;background:var(--primary-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">👥</div>
+              <div>
+                <div style="font-size:14.5px;font-weight:700;">Team Members</div>
+                <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">View and manage admin users — 12 members</div>
+              </div>
+              <span style="margin-left:auto;color:var(--text-muted);">›</span>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border-light)'">
+            <div class="card-body" style="display:flex;align-items:center;gap:14px;">
+              <div style="width:40px;height:40px;background:var(--primary-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🔑</div>
+              <div>
+                <div style="font-size:14.5px;font-weight:700;">Roles</div>
+                <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">Define permission sets — 5 roles configured</div>
+              </div>
+              <span style="margin-left:auto;color:var(--text-muted);">›</span>
+            </div>
+          </div>
+          <div class="card" style="cursor:pointer;" onmouseover="this.style.borderColor='var(--primary)'" onmouseout="this.style.borderColor='var(--border-light)'">
+            <div class="card-body" style="display:flex;align-items:center;gap:14px;">
+              <div style="width:40px;height:40px;background:var(--primary-light);border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:18px;">🛡️</div>
+              <div>
+                <div style="font-size:14.5px;font-weight:700;">Dashboard Roles & Permissions</div>
+                <div style="font-size:12.5px;color:var(--text-muted);margin-top:2px;">Map roles to sections and actions</div>
+              </div>
+              <span style="margin-left:auto;color:var(--text-muted);">›</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Security tab -->
+      <div id="settings-security" class="settings-tab" style="display:none;">
+        <div style="max-width:560px;display:flex;flex-direction:column;gap:14px;">
+          <div class="card">
+            <div class="card-body">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                  <div style="font-size:14.5px;font-weight:700;margin-bottom:4px;">Two-Factor Authentication</div>
+                  <div style="font-size:12.5px;color:var(--text-secondary);">Protect your account with an authenticator app</div>
+                </div>
+                <div style="display:flex;align-items:center;gap:10px;">
+                  <span class="pill green">Enabled</span>
+                  <div style="width:44px;height:24px;background:var(--primary);border-radius:100px;cursor:pointer;display:flex;align-items:center;padding:2px;justify-content:flex-end;" onclick="showToast('2FA disabled')">
+                    <div style="width:20px;height:20px;background:white;border-radius:50%;"></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><h3>Change Password</h3></div>
+            <div class="card-body" style="display:flex;flex-direction:column;gap:12px;">
+              <div><label style="display:block;font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Current Password</label>
+                <input type="password" placeholder="••••••••" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"></div>
+              <div><label style="display:block;font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">New Password</label>
+                <input type="password" placeholder="••••••••" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"></div>
+              <div><label style="display:block;font-size:11.5px;font-weight:700;color:var(--text-muted);text-transform:uppercase;letter-spacing:0.5px;margin-bottom:6px;">Confirm New Password</label>
+                <input type="password" placeholder="••••••••" style="width:100%;padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13.5px;font-family:'Plus Jakarta Sans',sans-serif;outline:none;"></div>
+              <button class="btn btn-primary btn-sm" style="width:fit-content;" onclick="showToast('Password updated ✓')">Update Password</button>
+            </div>
+          </div>
+
+          <div class="card">
+            <div class="card-hdr"><h3>Active Sessions</h3></div>
+            <div class="card-body" style="padding:0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 20px;border-bottom:1px solid var(--border-light);">
+                <div><div style="font-size:13px;font-weight:600;">Chrome · Lagos, Nigeria <span class="pill green" style="font-size:10.5px;margin-left:6px;">Current</span></div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Last active: now · 105.112.x.x</div></div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;padding:13px 20px;">
+                <div><div style="font-size:13px;font-weight:600;">Safari · Mobile</div><div style="font-size:12px;color:var(--text-muted);margin-top:2px;">Last active: 3h ago · 197.210.x.x</div></div>
+                <button class="btn btn-danger btn-xs" onclick="showToast('Session revoked ✓')">Revoke</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div><!-- /settings -->
+
+  </div><!-- /content -->
+</div><!-- /main -->
+</div><!-- /layout -->
+
+
+<!-- ══════════════════════════════════════
+     MODALS
+══════════════════════════════════════ -->
+<!-- Approve KYC -->
+<div class="modal-overlay" id="approveModal">
+  <div class="modal">
+    <h3>Approve KYC Application</h3>
+    <p>You are about to approve the KYC application for <strong>MedPlus Holdings</strong>. This will activate their merchant account and notify them by email.</p>
+    <label>Notes (optional)</label>
+    <textarea placeholder="Add any approval notes…" style="min-height:60px;"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('approveModal')">Cancel</button>
+      <button class="btn btn-success" onclick="closeModal('approveModal');showToast('KYC approved ✓ — Merchant notified')">Approve</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reject KYC -->
+<div class="modal-overlay" id="rejectModal">
+  <div class="modal">
+    <h3>Reject KYC Application</h3>
+    <p>You are about to reject the KYC application for <strong>MedPlus Holdings</strong>. This action is logged and the merchant will be notified with your reason.</p>
+    <label>Rejection Reason *</label>
+    <select><option>Select a reason…</option><option>Incomplete documentation</option><option>Document mismatch</option><option>AML / Sanctions flag</option><option>PEP detected</option><option>Other</option></select>
+    <label>Additional Notes *</label>
+    <textarea placeholder="Provide specific details for the rejection…"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('rejectModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="closeModal('rejectModal');showToast('KYC rejected — Merchant notified')">Confirm Rejection</button>
+    </div>
+  </div>
+</div>
+
+<!-- Return KYC -->
+<div class="modal-overlay" id="returnModal">
+  <div class="modal">
+    <h3>Return KYC for More Information</h3>
+    <p>The merchant will be notified and asked to provide additional information. Their application status will change to "Info Requested".</p>
+    <label>Message to Merchant *</label>
+    <textarea placeholder="Describe what information or documents are needed…"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('returnModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('returnModal');showToast('KYC returned — Merchant notified')">Send Request</button>
+    </div>
+  </div>
+</div>
+
+<!-- Suspend merchant -->
+<div class="modal-overlay" id="suspendModal">
+  <div class="modal">
+    <h3>Suspend Merchant Account</h3>
+    <p>Suspending this account will immediately disable all transactions and merchant access. This action is logged.</p>
+    <label>Suspension Reason *</label>
+    <select><option>Select a reason…</option><option>Suspicious activity</option><option>AML investigation</option><option>Compliance hold</option><option>Merchant request</option><option>Other</option></select>
+    <label>Notes *</label>
+    <textarea placeholder="Provide details for this suspension…"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('suspendModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="closeModal('suspendModal');showToast('Account suspended — Logged to audit trail')">Suspend Account</button>
+    </div>
+  </div>
+</div>
+
+<!-- Flag as fraudulent -->
+<div class="modal-overlay" id="flagModal">
+  <div class="modal">
+    <h3>Flag as Fraudulent</h3>
+    <p>Flagging will add a high-risk marker to this account/transaction and notify the fraud team for investigation.</p>
+    <label>Flag Reason *</label>
+    <textarea placeholder="Describe the suspicious activity or reason for flagging…"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('flagModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="closeModal('flagModal');showToast('🚩 Flagged — Fraud team notified')">Confirm Flag</button>
+    </div>
+  </div>
+</div>
+
+<!-- Add Note -->
+<div class="modal-overlay" id="noteModal">
+  <div class="modal">
+    <h3>Add Internal Note</h3>
+    <p>Notes are only visible to admin team members and are logged to the audit trail.</p>
+    <label>Note *</label>
+    <textarea placeholder="Write your note here…"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('noteModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('noteModal');showToast('Note saved ✓')">Save Note</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tier upgrade -->
+<div class="modal-overlay" id="tierModal">
+  <div class="modal">
+    <h3>Upgrade Merchant Tier</h3>
+    <p>Changing the merchant's tier will update their transaction limits and feature access. This is logged to the audit trail.</p>
+    <label>New Tier *</label>
+    <select><option>Select tier…</option><option>Tier 1 (₦1M daily limit)</option><option>Tier 2 (₦10M daily limit)</option><option>Tier 3 (₦50M daily limit)</option></select>
+    <label>Notes</label>
+    <textarea placeholder="Add context for this tier change…" style="min-height:60px;"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('tierModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('tierModal');showToast('Tier upgraded ✓ — Logged to audit trail')">Confirm Upgrade</button>
+    </div>
+  </div>
+</div>
+
+<!-- Reverse transaction -->
+<div class="modal-overlay" id="reverseModal">
+  <div class="modal">
+    <h3>Reverse Transaction</h3>
+    <p>You are about to reverse <strong>TXN-2024-09812</strong> for ₦2,450,000. This action cannot be undone and will be logged.</p>
+    <label>Reversal Reason *</label>
+    <select><option>Select a reason…</option><option>Unauthorized transaction</option><option>Dispute resolution</option><option>Duplicate transaction</option><option>Merchant error</option></select>
+    <label>Notes *</label>
+    <textarea placeholder="Provide details for this reversal…"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('reverseModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="closeModal('reverseModal');showToast('Transaction reversed — Logged to audit trail')">Confirm Reversal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Assign dispute -->
+<div class="modal-overlay" id="assignModal">
+  <div class="modal">
+    <h3>Assign Dispute</h3>
+    <p>Assign this dispute to a team member for resolution.</p>
+    <label>Assign To *</label>
+    <select><option>Select team member…</option><option>Chidi Okafor (CS)</option><option>Kemi Adeyemi (CS)</option><option>Tunde Balogun (Operations)</option><option>Amara Obi (Compliance)</option></select>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('assignModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('assignModal');showToast('Dispute assigned ✓')">Assign</button>
+    </div>
+  </div>
+</div>
+
+<!-- Escalate dispute -->
+<div class="modal-overlay" id="escalateModal">
+  <div class="modal">
+    <h3>Escalate Dispute</h3>
+    <p>Escalating this dispute will notify senior management and the fraud team.</p>
+    <label>Escalation Reason *</label>
+    <textarea placeholder="Describe why this dispute needs escalation…"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('escalateModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="closeModal('escalateModal');showToast('Dispute escalated — Management notified')">Escalate</button>
+    </div>
+  </div>
+</div>
+
+<!-- Resolve: favour merchant -->
+<div class="modal-overlay" id="resolveMerchantModal">
+  <div class="modal">
+    <h3>Resolve — Favour Merchant</h3>
+    <p>The transaction will be kept. The customer's claim will be rejected. This decision is final and logged.</p>
+    <label>Decision Notes *</label>
+    <textarea placeholder="Explain the basis for this decision…"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('resolveMerchantModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('resolveMerchantModal');showToast('Resolved — Transaction retained. Logged.')">Confirm Resolution</button>
+    </div>
+  </div>
+</div>
+
+<!-- Resolve: favour customer -->
+<div class="modal-overlay" id="resolveCustomerModal">
+  <div class="modal">
+    <h3>Resolve — Favour Customer</h3>
+    <p>The transaction will be reversed and funds returned to the customer. This action cannot be undone.</p>
+    <label>Decision Notes *</label>
+    <textarea placeholder="Explain the basis for this decision…"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('resolveCustomerModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="closeModal('resolveCustomerModal');showToast('Resolved — Transaction reversed. Logged.')">Confirm Reversal</button>
+    </div>
+  </div>
+</div>
+
+<!-- Force settle -->
+<div class="modal-overlay" id="forceSettleModal">
+  <div class="modal">
+    <h3>Force Settlement</h3>
+    <p>Initiate an immediate settlement outside the scheduled run. Use with caution — this action is logged and requires Finance approval.</p>
+    <label>Merchant ID *</label>
+    <input type="text" placeholder="MRC-XXXXX">
+    <label>Reason *</label>
+    <textarea placeholder="Provide a business reason for force settlement…"></textarea>
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('forceSettleModal')">Cancel</button>
+      <button class="btn btn-danger" onclick="closeModal('forceSettleModal');showToast('Settlement initiated — Pending Finance approval')">Initiate Settlement</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invite business -->
+<div class="modal-overlay" id="inviteModal">
+  <div class="modal">
+    <h3>Invite a Business</h3>
+    <p>Send an invitation link to a new merchant. They'll receive an email to begin their PocketApp merchant application.</p>
+    <label>Business Email *</label>
+    <input type="text" placeholder="admin@business.com">
+    <label>Business Name (optional)</label>
+    <input type="text" placeholder="e.g. Shoprite Nigeria Ltd">
+    <div class="modal-footer">
+      <button class="btn btn-ghost" onclick="closeModal('inviteModal')">Cancel</button>
+      <button class="btn btn-primary" onclick="closeModal('inviteModal');showToast('Invitation sent ✓')">Send Invitation</button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ══════════════════════════════════════
+//  ROLE SYSTEM
+// ══════════════════════════════════════
+var CURRENT_ROLE = 'super_admin';
+
+var ROLE_CONFIG = {
+  super_admin: {
+    label: 'Super Admin',
+    name: 'Efe Ogufere',
+    initials: 'EO',
+    greeting: 'Good afternoon, Efe',
+    sidebarNav: ['overview','biz-list','kyc-queue','flagged','transactions','disputes','settlements','settings'],
+    taskCount: '4 pending'
+  },
+  compliance: {
+    label: 'Compliance',
+    name: 'Amara Obi',
+    initials: 'AO',
+    greeting: 'Good afternoon, Amara',
+    sidebarNav: ['overview','biz-list','kyc-queue','transactions','settings'],
+    taskCount: '3 pending'
+  },
+  finance: {
+    label: 'Finance & Ops',
+    name: 'Ngozi Madu',
+    initials: 'NM',
+    greeting: 'Good afternoon, Ngozi',
+    sidebarNav: ['overview','biz-list','transactions','disputes','settlements','settings'],
+    taskCount: '3 pending'
+  },
+  cs: {
+    label: 'Customer Support',
+    name: 'Chidi Okafor',
+    initials: 'CO',
+    greeting: 'Good afternoon, Chidi',
+    sidebarNav: ['overview','biz-list','transactions','disputes','settings'],
+    taskCount: '3 pending'
+  },
+  product: {
+    label: 'Product',
+    name: 'Tunde Balogun',
+    initials: 'TB',
+    greeting: 'Good afternoon, Tunde',
+    sidebarNav: ['overview','biz-list','transactions','disputes','settings'],
+    taskCount: '3 insights'
+  }
+};
+
+function switchRole(role, btn) {
+  CURRENT_ROLE = role;
+  var cfg = ROLE_CONFIG[role];
+
+  // Update role switcher buttons
+  document.querySelectorAll('.role-sw-btn').forEach(function(b) { b.classList.remove('active'); });
+  if (btn) btn.classList.add('active');
+
+  // Update sidebar footer
+  document.querySelector('.sb-avatar').textContent = cfg.initials;
+  document.querySelector('.sb-user-name').textContent = cfg.name;
+  document.querySelector('.sb-user-role').textContent = cfg.label;
+  document.querySelector('.sb-role-badge').textContent = cfg.label;
+
+  // Update topbar role badge
+  document.querySelector('.tb-role').textContent = cfg.label;
+
+  // Update greeting
+  var greetEl = document.getElementById('overview-greeting');
+  if (greetEl) greetEl.textContent = cfg.greeting;
+
+  // Update tasks count
+  var tCount = document.getElementById('tasks-count');
+  if (tCount) tCount.textContent = cfg.taskCount;
+
+  // Show/hide sidebar nav items
+  applySidebarPermissions(role);
+
+  // Show/hide overview widgets
+  applyWidgetPermissions(role);
+
+  // Show/hide my tasks per role
+  applyTasksPermissions(role);
+
+  // Show/hide action buttons based on role
+  applyActionPermissions(role);
+
+  // Show/hide KYC nav item (only compliance + super_admin)
+  var kycNavItems = document.querySelectorAll('[data-nav="kyc"]');
+  kycNavItems.forEach(function(item) {
+    item.style.display = (role === 'super_admin' || role === 'compliance') ? '' : 'none';
+  });
+
+  showToast('Viewing as: ' + cfg.label);
+}
+
+function applySidebarPermissions(role) {
+  var navMap = {
+    'overview': '#sb-nav-overview',
+    'biz-list': '#sb-nav-biz',
+    'kyc-queue': '#sb-nav-kyc',
+    'flagged': '#sb-nav-flagged',
+    'transactions': '#sb-nav-txns',
+    'disputes': '#sb-nav-disputes',
+    'settlements': '#sb-nav-settlements',
+    'settings': '#sb-nav-settings'
+  };
+  var allowed = ROLE_CONFIG[role].sidebarNav;
+  Object.keys(navMap).forEach(function(key) {
+    var el = document.querySelector(navMap[key]);
+    if (el) el.style.display = allowed.indexOf(key) !== -1 ? '' : 'none';
+  });
+}
+
+function applyWidgetPermissions(role) {
+  // Card 2: swap inner content — the card div always stays in grid (no blank cell)
+  var isKycRole = (role === 'super_admin' || role === 'compliance');
+  var kycInner = document.getElementById('kpi-card2-kyc');
+  var dispInner = document.getElementById('kpi-card2-disputes');
+  if (kycInner) kycInner.style.display = isKycRole ? '' : 'none';
+  if (dispInner) dispInner.style.display = isKycRole ? 'none' : '';
+
+  // Role-aware widgets
+  var widgets = {
+    'widget-kyc':         ['super_admin','compliance'],
+    'widget-disputes':    ['super_admin','cs','finance'],
+    'widget-settlements': ['super_admin','finance'],
+    'widget-flagged':     ['super_admin','compliance','finance'],
+    'widget-product':     ['product']
+  };
+  Object.keys(widgets).forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.style.display = widgets[id].indexOf(role) !== -1 ? '' : 'none';
+  });
+}
+
+function applyTasksPermissions(role) {
+  var allTasks = ['super_admin','compliance','finance','cs','product'];
+  allTasks.forEach(function(r) {
+    var el = document.getElementById('tasks-' + r);
+    if (el) el.style.display = r === role ? '' : 'none';
+  });
+}
+
+function applyActionPermissions(role) {
+  // Action buttons with data-roles attribute
+  document.querySelectorAll('[data-roles]').forEach(function(el) {
+    var allowed = el.getAttribute('data-roles').split(',');
+    el.style.display = allowed.indexOf(role) !== -1 ? '' : 'none';
+  });
+  // Separators inside action panels — hide if no destructive actions visible
+  setTimeout(function() {
+    document.querySelectorAll('.card-body [data-roles]').forEach(function(sep) {
+      if (sep.tagName === 'DIV' && sep.style.height === '1px') {
+        // Separator visibility already handled by data-roles
+      }
+    });
+  }, 50);
+}
+
+// ══════════════════════════════════════
+//  NAVIGATION
+// ══════════════════════════════════════
+function showScreen(id, btn, title) {
+  document.querySelectorAll('.screen').forEach(function(s) { s.classList.remove('active'); });
+  var screen = document.getElementById('screen-' + id);
+  if (screen) screen.classList.add('active');
+
+  if (title) document.getElementById('topbarTitle').textContent = title;
+
+  document.querySelectorAll('.sb-item').forEach(function(item) { item.classList.remove('active'); });
+
+  if (btn) {
+    document.querySelectorAll('.pnav-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+  } else {
+    document.querySelectorAll('.pnav-btn').forEach(function(b) {
+      var onc = b.getAttribute('onclick') || '';
+      if (onc.indexOf("'" + id + "'") !== -1) b.classList.add('active');
+    });
+  }
+  // Re-apply action permissions on every screen change
+  applyActionPermissions(CURRENT_ROLE);
+}
+
+// ══════════════════════════════════════
+//  KYC TABS
+// ══════════════════════════════════════
+function switchKycTab(el, tabId) {
+  document.querySelectorAll('.kyc-tab').forEach(function(t) { t.style.display = 'none'; });
+  var tab = document.getElementById(tabId);
+  if (tab) tab.style.display = '';
+  document.querySelectorAll('#screen-kyc-detail .tab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+// ══════════════════════════════════════
+//  SETTINGS TABS
+// ══════════════════════════════════════
+function switchSettingsTab(el, tabId) {
+  document.querySelectorAll('.settings-tab').forEach(function(t) { t.style.display = 'none'; });
+  var tab = document.getElementById(tabId);
+  if (tab) tab.style.display = '';
+  document.querySelectorAll('#screen-settings .tab').forEach(function(t) { t.classList.remove('active'); });
+  el.classList.add('active');
+}
+
+// ══════════════════════════════════════
+//  FILTER CHIPS
+// ══════════════════════════════════════
+function setChip(el) {
+  var parent = el.parentElement;
+  parent.querySelectorAll('.chip').forEach(function(c) {
+    c.classList.remove('active');
+    c.style.background = '';
+    c.style.color = '';
+    c.style.borderColor = '';
+  });
+  el.classList.add('active');
+}
+
+// ══════════════════════════════════════
+//  FILTER PANEL
+// ══════════════════════════════════════
+function openFilter() {
+  document.getElementById('filterOverlay').classList.add('open');
+  document.getElementById('filterPanel').classList.add('open');
+}
+function closeFilter() {
+  document.getElementById('filterOverlay').classList.remove('open');
+  document.getElementById('filterPanel').classList.remove('open');
+}
+function applyFilter() {
+  closeFilter();
+  showToast('Filters applied ✓');
+}
+
+// ══════════════════════════════════════
+//  MODALS
+// ══════════════════════════════════════
+function showModal(id) {
+  var m = document.getElementById(id);
+  if (m) m.classList.add('open');
+}
+function closeModal(id) {
+  var m = document.getElementById(id);
+  if (m) m.classList.remove('open');
+}
+document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+  overlay.addEventListener('click', function(e) {
+    if (e.target === overlay) overlay.classList.remove('open');
+  });
+});
+
+// ══════════════════════════════════════
+//  TOAST
+// ══════════════════════════════════════
+function showToast(msg) {
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 3500);
+}
+
+// ══════════════════════════════════════
+//  RISK ASSESSMENT EDITING
+// ══════════════════════════════════════
+function toggleRiskEdit(field) {
+  var editEl = document.getElementById(field + '-edit');
+  if (editEl) editEl.style.display = editEl.style.display === 'none' ? 'block' : 'none';
+}
+
+var riskValues = { pep: 'warn', sanctions: 'pass', aml: 'fail' };
+
+function updateRisk(field, value) {
+  riskValues[field] = value;
+}
+
+function saveRisk(field) {
+  var val = riskValues[field];
+  var badge = document.getElementById(field + '-badge');
+  var labelMap = {
+    pep: { pass: 'Clear', warn: 'Review', fail: 'Confirmed PEP' },
+    sanctions: { pass: 'Clear', warn: 'Under Review', fail: 'Sanctioned' },
+    aml: { pass: 'Clear', warn: 'Monitoring', fail: 'Flagged' }
+  };
+  var selectEl = document.getElementById(field + '-select');
+  if (selectEl) val = selectEl.value;
+
+  if (badge) {
+    badge.className = val === 'pass' ? 'rc-pass' : val === 'warn' ? 'rc-warn' : 'rc-fail';
+    badge.textContent = labelMap[field][val] || val;
+  }
+  toggleRiskEdit(field);
+  showToast(field.toUpperCase() + ' status updated ✓ — Logged to audit trail');
+}
+
+// ══════════════════════════════════════
+//  SIDEBAR NAV SYNC
+// ══════════════════════════════════════
+document.querySelectorAll('.sb-item').forEach(function(item) {
+  item.addEventListener('click', function() {
+    document.querySelectorAll('.sb-item').forEach(function(i) { i.classList.remove('active'); });
+    item.classList.add('active');
+  });
+});
+
+// ══════════════════════════════════════
+//  INIT
+// ══════════════════════════════════════
+(function init() {
+  applyWidgetPermissions('super_admin');
+  applyTasksPermissions('super_admin');
+  applyActionPermissions('super_admin');
+  applySidebarPermissions('super_admin');
+  console.log('PocketApp Admin Dashboard v3 ✓ — Role-based permissions + PMD design system');
+})();
+</script>
+</body>
+</html>
