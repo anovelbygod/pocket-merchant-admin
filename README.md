@@ -1,4 +1,4 @@
-# PocketApp Admin Console
+# Pocket Merchant Admin Console
 
 An interactive, high-fidelity UI prototype of the internal admin dashboard for **PocketApp** (by Piggyvest). Built to support design validation, stakeholder reviews, and frontend development handoff.
 
